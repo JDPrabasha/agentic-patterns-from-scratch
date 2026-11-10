@@ -7,7 +7,10 @@ Guidance for Claude Code when working in this repository.
 A workshop that builds tool use, reflection and planning from primitives on the Anthropic API.
 **No agent or orchestration framework, ever.** The only runtime dependencies are `anthropic`
 (used only for `client.messages.create` and `models.retrieve`) and `python-dotenv`. Do not add
-LangChain, LangGraph, pydantic-ai, agent SDKs or similar; teaching the primitives is the point.
+LangChain, LangGraph, pydantic-ai, agent SDKs or similar to `main`; teaching the primitives is the point.
+The one exception is the follow-up framework lab: teams add a framework on their own
+`framework/<team>` branch and use it only in `framework_lab/my_agent.py`. On `main`, `my_agent.py`
+stays a stub that raises `NotImplementedError`.
 
 ## Commands
 
@@ -16,7 +19,7 @@ Use `uv` from the repository root.
 ```bash
 uv sync                                   # install
 uv run scripts/check_solutions.py         # offline: full suite against solutions/ (must pass)
-uv run python -m unittest                 # offline: 14 tests fail BY DESIGN until Labs 1-2 are written
+uv run python -m unittest                 # offline: 16 tests fail BY DESIGN until Labs 1-2 are written
 uv run labs/00_first_call.py --scenario basics [--team NAME] [--model ID]
 uv run labs/01_tool_use.py --scenario NAME
 uv run labs/02_reflection.py --scenario NAME
@@ -44,6 +47,9 @@ Labs make real, billed API calls. Run them only when asked. Before finishing a c
 - `labs/`: runnable scripts; `_common.py` sets `sys.path`, loads `.env`, adds `--team` and prints
   tab-separated scoreboard lines from each scenario's `(result, detail)` return; `_bookclub.py` holds
   the task, the tournament knobs and the strategies shared by labs 03 and 04.
+- `framework_lab/`: the follow-up lab. `parity.py` runs `my_agent.run()` and the from-scratch
+  baseline through the Lab 1 scenarios, meters API calls by wrapping the SDK's `Messages.create`,
+  and compares the first request with the given system prompt and tools ("fidelity").
 - `README.md` is the participants' 90-minute lab sheet (teams of 3). Facilitator material lives
   outside the repo.
 - `tests/fakes.py:ScriptedLLM` replays scripted SDK `Message`s; new behaviour should get an

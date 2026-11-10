@@ -75,6 +75,10 @@ One laptop per team needs this working. If two of you set it up, you have a spar
 
   Your attempt is kept as `agentic/loop.mine.py`. Compare the two afterwards; they are short.
 
+**Keep a "wish list".** Whenever you think "a library should do this for me", the Recorder notes
+it. You'll bring the list to the next lab, where you rebuild Lab 1 on a framework and judge
+what it costs you.
+
 Every run also saves a trace to `runs/`. `uv run scripts/replay.py` plays the newest one back
 without calling the model.
 
@@ -256,6 +260,13 @@ minutes. Last question for everyone:
 
 ---
 
+## Next lab: rebuild Lab 1 on a framework
+
+In the follow-up lab your team rebuilds Lab 1 on an agent framework you choose. You run it through
+the same seven scenarios with `framework_lab/parity.py`, and write a short justification of the
+choice, including what the abstraction cost you. Bring your wish list. The brief is in
+[`framework_lab/README.md`](framework_lab/README.md).
+
 ## After the lab
 
 - `uv run labs/00_first_call.py --scenario memory`: the API is stateless, and "memory" is the
@@ -285,6 +296,7 @@ shop/             Inkwell Books: a fake bookstore (every person, order and email
 labs/             00 setup · 01 tool use · 02 reflection · 03 planning · 04 tournament
 solutions/        reference loop.py and reflection.py
 scripts/          use_solution.py · replay.py · check_solutions.py
+framework_lab/    the follow-up lab: brief, my_agent.py stub, parity.py harness, JUSTIFICATION.md
 tests/            offline tests with a scripted fake model (tests/fakes.py)
 ```
 
@@ -296,6 +308,7 @@ tests/            offline tests with a scripted fake model (tests/fakes.py)
 | `uv run scripts/use_solution.py loop` / `--undo` | Swap the reference solution in and out |
 | `uv run scripts/replay.py [file] [--delay 0.5]` | Replay a saved trace, no model calls |
 | `uv run scripts/check_solutions.py` | Run every test against the reference solutions |
+| `uv run framework_lab/parity.py --impl both` | Follow-up lab: your framework agent vs the from-scratch loop |
 
 Every lab accepts `--team`, `--model` and `--scenario`. Use `--help` to list the scenarios. The
 default model is `claude-haiku-5-5`. Set `ANTHROPIC_MODEL` in `.env` or pass `--model` to change it.
