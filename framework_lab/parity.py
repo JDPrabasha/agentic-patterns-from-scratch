@@ -13,6 +13,8 @@ shop, and measures both the same way:
 Run:  uv run framework_lab/parity.py                    # your agent, every scenario
       uv run framework_lab/parity.py --impl both        # side by side with the baseline
       uv run framework_lab/parity.py --scenario bad-error --impl mine
+      uv run --with <pkg> framework_lab/parity.py --agent framework_lab/spikes/<name>.py --scenario tools
+                                                        # a survey spike, without `uv add`
 """
 
 from __future__ import annotations
@@ -202,8 +204,10 @@ def baseline_run(question, *, system, tools, model, max_steps):
     return result.text
 
 
-def load_mine():
-    path = ROOT / "framework_lab" / "my_agent.py"
+MY_AGENT = ROOT / "framework_lab" / "my_agent.py"
+
+
+def load_mine(path: Path = MY_AGENT):
     spec = importlib.util.spec_from_file_location("my_agent", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -314,6 +318,9 @@ def main() -> None:
     parser.add_argument("--model", default=os.getenv("ANTHROPIC_MODEL") or "claude-haiku-5-5")
     parser.add_argument("--team", default=os.getenv("TEAM", "solo"))
     parser.add_argument("--runs", type=int, default=1, help="runs per scenario (default 1)")
+    parser.add_argument("--agent", type=Path, default=MY_AGENT,
+                        help="file with a run() to test (default framework_lab/my_agent.py); "
+                             "point it at a survey spike in framework_lab/spikes/")
     args = parser.parse_args()
     if not os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_API_KEY") == "your-key-here":
         sys.exit("ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key.")
@@ -322,7 +329,7 @@ def main() -> None:
     impls = []
     framework = "from scratch"
     if args.impl in ("mine", "both"):
-        mine = load_mine()
+        mine = load_mine(args.agent.resolve())
         framework = getattr(mine, "FRAMEWORK", "unnamed framework")
         impls.append((f"mine ({framework})", mine.run))
     if args.impl in ("baseline", "both"):
@@ -344,15 +351,18 @@ def main() -> None:
         if r.notes != ["exact"]:
             print(f"{'':<34}  ↳ sent to the API: {'; '.join(r.notes)}")
 
-    mine_path = ROOT / "framework_lab" / "my_agent.py"
+    mine_path = args.agent.resolve()
     scratch = [ROOT / "agentic" / n for n in ("loop.py", "tools.py", "llm.py")]
-    print(f"\nCode you maintain: my_agent.py = {code_lines([mine_path])} lines; "
+    print(f"\nCode you maintain: {mine_path.name} = {code_lines([mine_path])} lines; "
           f"from-scratch loop+tools+llm = {code_lines(scratch)} lines (comments and docstrings excluded)")
     print("Fidelity: 'exact' means the API received your system prompt, tool descriptions and schemas unchanged.")
     print(f"Python packages installed in this environment: {len(list(metadata.distributions()))} "
           "(compare with a fresh `uv sync` of main)")
 
-    if any(r.impl.startswith("mine") for r in rows):
+    if mine_path != MY_AGENT:
+        print("\nSurvey spike: copy these numbers into the trade-off matrix in JUSTIFICATION.md "
+              "(only my_agent.py goes on the scoreboard).")
+    elif any(r.impl.startswith("mine") for r in rows):
         print("\nPaste these lines into the class scoreboard (select, copy, paste into column A):")
         for r in rows:
             if r.impl.startswith("mine"):

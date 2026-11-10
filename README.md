@@ -76,8 +76,8 @@ One laptop per team needs this working. If two of you set it up, you have a spar
   Your attempt is kept as `agentic/loop.mine.py`. Compare the two afterwards; they are short.
 
 **Keep a "wish list".** Whenever you think "a library should do this for me", the Recorder notes
-it. You'll bring the list to the next lab, where you rebuild Lab 1 on a framework and judge
-what it costs you.
+it. You'll bring the list to the next lab, where you survey the agent frameworks, rebuild Lab 1 on
+the one you pick, and decide when you'd write the loop yourself instead.
 
 Every run also saves a trace to `runs/`. `uv run scripts/replay.py` plays the newest one back
 without calling the model.
@@ -260,11 +260,13 @@ minutes. Last question for everyone:
 
 ---
 
-## Next lab: rebuild Lab 1 on a framework
+## Next lab: survey the frameworks, pick one, and know when not to
 
-In the follow-up lab your team rebuilds Lab 1 on an agent framework you choose. You run it through
-the same seven scenarios with `framework_lab/parity.py`, and write a short justification of the
-choice, including what the abstraction cost you. Bring your wish list. The brief is in
+In the follow-up lab your team spikes every framework on a shortlist (LangGraph, Pydantic AI,
+CrewAI, AutoGen, smolagents and others) against the same harness, and lists the trade-offs of
+each. You then rebuild Lab 1 on the one you pick, run it through the same seven scenarios with
+`framework_lab/parity.py`, justify the choice against your own criteria, and say when you would
+skip every framework and write the loop yourself. Bring your wish list. The brief is in
 [`framework_lab/README.md`](framework_lab/README.md).
 
 ## After the lab
@@ -296,7 +298,7 @@ shop/             Inkwell Books: a fake bookstore (every person, order and email
 labs/             00 setup · 01 tool use · 02 reflection · 03 planning · 04 tournament
 solutions/        reference loop.py and reflection.py
 scripts/          use_solution.py · replay.py · check_solutions.py
-framework_lab/    the follow-up lab: brief, my_agent.py stub, parity.py harness, JUSTIFICATION.md
+framework_lab/    the follow-up lab: brief, spikes/, my_agent.py stub, parity.py harness, JUSTIFICATION.md
 tests/            offline tests with a scripted fake model (tests/fakes.py)
 ```
 

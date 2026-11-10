@@ -8,8 +8,9 @@ A workshop that builds tool use, reflection and planning from primitives on the 
 **No agent or orchestration framework, ever.** The only runtime dependencies are `anthropic`
 (used only for `client.messages.create` and `models.retrieve`) and `python-dotenv`. Do not add
 LangChain, LangGraph, pydantic-ai, agent SDKs or similar to `main`; teaching the primitives is the point.
-The one exception is the follow-up framework lab: teams add a framework on their own
-`framework/<team>` branch and use it only in `framework_lab/my_agent.py`. On `main`, `my_agent.py`
+The one exception is the follow-up framework lab: teams survey a shortlist of frameworks with
+spikes in `framework_lab/spikes/` (run via `uv run --with`, never added to `main`), then add the
+chosen one on their own `framework/<team>` branch for `framework_lab/my_agent.py`. On `main`, `my_agent.py`
 stays a stub that raises `NotImplementedError`.
 
 ## Commands
@@ -47,7 +48,8 @@ Labs make real, billed API calls. Run them only when asked. Before finishing a c
 - `labs/`: runnable scripts; `_common.py` sets `sys.path`, loads `.env`, adds `--team` and prints
   tab-separated scoreboard lines from each scenario's `(result, detail)` return; `_bookclub.py` holds
   the task, the tournament knobs and the strategies shared by labs 03 and 04.
-- `framework_lab/`: the follow-up lab. `parity.py` runs `my_agent.run()` and the from-scratch
+- `framework_lab/`: the follow-up lab (survey every framework, list trade-offs, justify a pick, say
+  when to write the loop yourself). `parity.py` runs `my_agent.run()` (or a spike via `--agent`) and the from-scratch
   baseline through the Lab 1 scenarios, meters API calls by wrapping the SDK's `Messages.create`,
   and compares the first request with the given system prompt and tools ("fidelity").
 - `README.md` is the participants' 90-minute lab sheet (teams of 3). Facilitator material lives

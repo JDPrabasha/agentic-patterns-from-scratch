@@ -94,6 +94,16 @@ class ParityTests(unittest.TestCase):
         row = self.run_with(FakeAPI(), self.parity.load_mine().run, "tools")
         self.assertIn("not implemented", row.error)
 
+    def test_spike_file_can_be_loaded_with_agent_path(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            spike = Path(tmp) / "spike.py"
+            spike.write_text("FRAMEWORK = 'spike'\ndef run(question, **kwargs):\n    return 'spiked'\n")
+            module = self.parity.load_mine(spike)
+        self.assertEqual(module.FRAMEWORK, "spike")
+        row = self.run_with(FakeAPI(), module.run, "tools")
+        self.assertEqual(row.reply, "spiked")
+
 
 if __name__ == "__main__":
     unittest.main()
