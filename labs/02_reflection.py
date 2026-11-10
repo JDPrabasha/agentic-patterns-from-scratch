@@ -1,9 +1,11 @@
-"""Lab 02 — Reflection: generate, critique, revise.
+"""Lab 2 — Reflection: generate, critique, revise.
 
 Task: reply to a customer whose book arrived damaged and who asks for more
-than the policy allows. Compare four ways of producing the reply.
+than the policy allows. Compare ways of producing the reply.
 
-Run:  uv run labs/02_reflection.py [--scenario NAME]
+First write STEPS 2-3 in agentic/reflection.py, then:
+
+Run:  uv run labs/02_reflection.py --scenario NAME
 Read: agentic/reflection.py
 """
 
@@ -74,7 +76,17 @@ def signed_off(text):
     return None if "Inkwell Books Support" in text else 'Sign off as "Inkwell Books Support".'
 
 
-CHECKS = [mentions_order, short_enough, no_placeholders, no_gift_card_promise, refund_amount_ok, signed_off]
+def team_check(text):
+    """YOUR TEAM'S CHECK. Return a short instruction to fix the problem, or None if the text is fine.
+
+    Ideas: doesn't blame the courier; offers the refund in the first two sentences;
+    no exclamation marks; uses the customer's name.
+    """
+    return None
+
+
+CHECKS = [mentions_order, short_enough, no_placeholders, no_gift_card_promise, refund_amount_ok, signed_off,
+          team_check]
 
 
 def _run(llm, *, rubric, checks, rounds):
@@ -84,31 +96,52 @@ def _run(llm, *, rubric, checks, rounds):
     result = reflect(llm, task=TASK, system=SYSTEM, rubric=rubric, checks=checks, max_rounds=rounds)
     final_problems = run_checks(result.final, CHECKS)
     trace.block("Final reply", result.final)
+    (_common.ROOT / "runs").mkdir(exist_ok=True)
+    (_common.ROOT / "runs" / "last-draft.txt").write_text(result.final, encoding="utf-8")
+    trace.note("Saved to runs/last-draft.txt (share it with another team for check-draft).")
     for check in CHECKS:
         problem = check(result.final)
         trace.check(check.__name__, problem is None, problem or "")
+    passed = len(CHECKS) - len(final_problems)
     trace.note(f"{len(result.rounds)} review round(s), {llm.usage.calls - before} model calls, "
-               f"{len(CHECKS) - len(final_problems)}/{len(CHECKS)} deterministic checks pass")
+               f"{passed}/{len(CHECKS)} deterministic checks pass")
+    return f"{passed}/{len(CHECKS)} checks", f"{len(result.rounds)} review round(s)"
 
 
 def one_shot(llm):
     """One draft. It is still reviewed once (by checks only) so we can score it."""
-    _run(llm, rubric=None, checks=CHECKS, rounds=1)
+    return _run(llm, rubric=None, checks=CHECKS, rounds=1)
 
 
 def self_critique(llm):
     """The model reviews its own draft against the rubric. No code checks."""
-    _run(llm, rubric=RUBRIC, checks=[], rounds=3)
+    return _run(llm, rubric=RUBRIC, checks=[], rounds=3)
 
 
 def checks_only(llm):
     """Only the Python checks give feedback. Exact, but blind to tone."""
-    _run(llm, rubric=None, checks=CHECKS, rounds=3)
+    return _run(llm, rubric=None, checks=CHECKS, rounds=3)
 
 
 def grounded(llm):
     """Both: code checks feed the model critic, which adds what code cannot see."""
-    _run(llm, rubric=RUBRIC, checks=CHECKS, rounds=3)
+    return _run(llm, rubric=RUBRIC, checks=CHECKS, rounds=3)
+
+
+def check_draft(llm):
+    """No model calls: run every check on another team's draft pasted into labs/draft.txt."""
+    path = _common.ROOT / "labs" / "draft.txt"
+    if not path.exists():
+        trace.warn("Paste a draft into labs/draft.txt first.")
+        return None
+    text = path.read_text(encoding="utf-8").strip()
+    trace.block("Draft under review", text)
+    problems = 0
+    for check in CHECKS:
+        problem = check(text)
+        problems += problem is not None
+        trace.check(check.__name__, problem is None, problem or "")
+    return f"{len(CHECKS) - problems}/{len(CHECKS)} checks", "on a pasted draft"
 
 
 SCENARIOS = {
@@ -116,7 +149,8 @@ SCENARIOS = {
     "self-critique": ("model critic with a rubric", self_critique),
     "checks-only": ("deterministic checks as the only feedback", checks_only),
     "grounded": ("checks + model critic", grounded),
+    "check-draft": ("no model: run the checks on labs/draft.txt", check_draft),
 }
 
 if __name__ == "__main__":
-    _common.run("lab02", "Lab 02: reflection from scratch.", SCENARIOS)
+    _common.run("lab2", "Lab 2: reflection from scratch.", SCENARIOS)

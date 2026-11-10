@@ -1,8 +1,10 @@
 import importlib.util
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from shop import Shop, grade_book_club, shop_toolbox
 from agentic import ToolError
@@ -141,6 +143,35 @@ class LabTests(unittest.TestCase):
         _bookclub.plan_reflect(llm, shop)
         self.assertEqual(llm.responses, [])
         self.assertEqual(_bookclub.grade(shop), (6, 6))
+
+    def test_saved_plan_round_trip(self):
+        import _bookclub
+        from agentic.planning import Step
+
+        original = _bookclub.SAVED_PLAN
+        with tempfile.TemporaryDirectory() as tmp:
+            _bookclub.SAVED_PLAN = Path(tmp) / "plan.json"
+            try:
+                self.assertIsNone(_bookclub.load_plan())
+                steps = [Step(1, "Find members"), Step(2, "Order", [1])]
+                _bookclub.save_plan(steps)
+                self.assertEqual(_bookclub.load_plan(), steps)
+            finally:
+                _bookclub.SAVED_PLAN = original
+
+    def test_scoreboard_line_is_tab_separated(self):
+        from agentic import trace
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print") as printed:
+            trace._state["file"] = Path(tmp) / "x.jsonl"
+            try:
+                trace.scoreboard("Team Ada", "lab1", "bad-error", "gave up", 3, 1200, "ids tried: 1042")
+            finally:
+                trace._state["file"] = None
+            line = printed.call_args.args[0]
+            self.assertEqual(line.split("\t"), ["Team Ada", "lab1", "bad-error", "gave up", "3", "1200",
+                                                "ids tried: 1042"])
+            self.assertIn("Team Ada", (Path(tmp) / "scoreboard.tsv").read_text())
 
     def test_toolbox_subset(self):
         self.assertEqual(shop_toolbox(Shop(), ["get_order"]).names(), ["get_order"])

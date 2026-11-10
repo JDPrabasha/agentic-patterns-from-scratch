@@ -34,6 +34,8 @@ def parse_args(description: str, scenarios: dict[str, tuple[str, Scenario]], ext
     )
     parser.add_argument("--scenario", choices=list(scenarios), help="run only this scenario (default: all)")
     parser.add_argument("--model", help="model id (default: $ANTHROPIC_MODEL, then claude-haiku-5-5)")
+    parser.add_argument("--team", default=os.getenv("TEAM", "solo"),
+                        help="team name for the scoreboard (default: $TEAM in .env)")
     if extra:
         extra(parser)
     return parser.parse_args()
@@ -54,13 +56,24 @@ def make_llm(model: str | None) -> LLM:
 
 
 def run(lab: str, description: str, scenarios: dict[str, tuple[str, Scenario]]) -> None:
+    """Run the chosen scenarios. A scenario may return (result, detail) for the scoreboard."""
     args = parse_args(description, scenarios)
     llm = make_llm(args.model)
-    trace.start(lab, ROOT / "runs")
-    trace.note(f"Model: {llm.model}")
+    trace.start(f"{lab}-{args.team}", ROOT / "runs")
+    trace.note(f"Team: {args.team} · Model: {llm.model}")
     chosen = [args.scenario] if args.scenario else list(scenarios)
+    lines = []
     for name in chosen:
         desc, fn = scenarios[name]
         trace.heading(f"{lab} / {name}: {desc}")
-        fn(llm)
+        calls, tokens = llm.usage.calls, llm.usage.input_tokens + llm.usage.output_tokens
+        outcome = fn(llm)
+        if outcome:
+            result, detail = outcome
+            used = llm.usage.input_tokens + llm.usage.output_tokens - tokens
+            lines.append((name, result, llm.usage.calls - calls, used, detail))
     trace.note(f"Total usage: {llm.usage}")
+    if lines:
+        print("\nPaste these lines into the class scoreboard (select, copy, paste into column A):")
+        for name, result, calls, used, detail in lines:
+            trace.scoreboard(args.team, lab, name, result, calls, used, detail)

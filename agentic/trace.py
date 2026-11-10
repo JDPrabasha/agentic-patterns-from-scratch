@@ -139,6 +139,39 @@ def block(label: str, text: str) -> None:
     _emit("note", label, text)
 
 
+def scoreboard(
+    team: str, lab: str, scenario: str, result: str, calls: int | str = "", tokens: int | str = "", detail: str = ""
+) -> None:
+    """One tab-separated line for the class scoreboard: copy it, paste it into the sheet.
+
+    Columns: team, lab, scenario, result, model calls, tokens, detail.
+    Printed even in --quiet mode, without colour, and also appended to runs/scoreboard.tsv.
+    """
+    cells = [str(c) for c in (team, lab, scenario, result, calls, tokens, detail)]
+    line = "\t".join(c.replace("\t", " ").replace("\n", " ") for c in cells)
+    print(line, flush=True)
+    folder = Path(_state["file"]).parent if _state["file"] else Path("runs")
+    folder.mkdir(parents=True, exist_ok=True)
+    with open(folder / "scoreboard.tsv", "a", encoding="utf-8") as fh:
+        fh.write(line + "\n")
+    if _state["file"] is not None:
+        record = {"t": time.time(), "kind": "scoreboard", "team": team, "lab": lab, "scenario": scenario,
+                  "result": result, "calls": calls, "tokens": tokens, "detail": detail}
+        with open(_state["file"], "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record) + "\n")
+
+
+def replay(record: dict) -> None:
+    """Re-print one event read back from a JSONL trace (used by scripts/replay.py)."""
+    if record.get("kind") == "scoreboard":
+        return
+    saved, _state["file"] = _state["file"], None  # never write while replaying
+    try:
+        _emit(record.get("kind", "note"), record.get("label", ""), record.get("text", ""))
+    finally:
+        _state["file"] = saved
+
+
 def check(name: str, passed: bool, detail: str = "") -> None:
     mark = "PASS" if passed else "FAIL"
     suffix = f" — {detail}" if detail else ""

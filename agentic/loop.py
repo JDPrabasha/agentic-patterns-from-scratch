@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from . import trace
-from .llm import as_assistant_message, text_of
+from .llm import as_assistant_message, text_of  # noqa: F401  (text_of: you need it in STEP 3)
 from .tools import ToolBox
 
 
@@ -52,24 +52,26 @@ def run_agent(
             if block.type == "text" and block.text.strip():
                 trace.assistant(block.text.strip())
 
-        # STEP 3: no tool requested -> the model is done (or was cut off / refused).
-        if response.stop_reason != "tool_use":
-            return AgentResult(text_of(response), messages, step, response.stop_reason or "unknown")
-
-        # STEP 4: run *every* tool_use block. Models may ask for several at once.
-        results = []
-        for block in response.content:
-            if block.type != "tool_use":
-                continue
-            trace.tool_call(block.name, block.input)
-            output, is_error = toolbox.run(block.name, block.input)
-            trace.tool_result(block.name, output, is_error)
-            results.append(
-                {"type": "tool_result", "tool_use_id": block.id, "content": output, "is_error": is_error}
-            )
-
-        # STEP 5: results go back as a *user* message, each paired by tool_use_id.
-        messages.append({"role": "user", "content": results})
+        # ------------------------------------------------------------------
+        # LAB 1 — YOUR TEAM WRITES STEPS 3 TO 5.  Check: uv run python -m unittest tests.test_lab1_loop -v
+        #
+        # STEP 3: If the model did NOT ask for a tool, it is done (or was cut off).
+        #   Return AgentResult(text_of(response), messages, step, response.stop_reason or "unknown").
+        #   Hint: compare response.stop_reason with "tool_use".
+        #
+        # STEP 4: Run EVERY block in response.content whose block.type == "tool_use"
+        #   (a model may ask for several at once). For each one:
+        #     trace.tool_call(block.name, block.input)
+        #     output, is_error = toolbox.run(block.name, block.input)
+        #     trace.tool_result(block.name, output, is_error)
+        #   and collect a result dict:
+        #     {"type": "tool_result", "tool_use_id": block.id, "content": output, "is_error": is_error}
+        #
+        # STEP 5: Send all the results back in ONE message with role "user":
+        #     messages.append({"role": "user", "content": results})
+        #   The loop then goes round and the model reads them.
+        # ------------------------------------------------------------------
+        raise NotImplementedError("Lab 1: write STEPS 3-5 in agentic/loop.py")
 
     # STEP 6: a hard cap. Without it a confused agent loops (and bills) forever.
     trace.warn(f"Stopped after {max_steps} model calls without a final answer")

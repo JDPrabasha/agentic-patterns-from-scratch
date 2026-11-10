@@ -1,6 +1,7 @@
-"""Lab 00 — One API call, and why "memory" is just a list.
+"""Lab 0 — Setup check (and, after the lab, why "memory" is just a list).
 
-Run:  uv run labs/00_first_call.py [--scenario basics|memory|max-tokens]
+Run:  uv run labs/00_first_call.py --scenario basics --team <your-team>
+      uv run labs/00_first_call.py --scenario memory        (after the lab)
 Read: agentic/llm.py
 """
 
@@ -21,6 +22,7 @@ def basics(llm):
     response = llm(messages=messages, max_tokens=200)
     trace.block("Response (as returned by the SDK)", response.model_dump_json(indent=2, exclude_none=True))
     trace.note(f"stop_reason={response.stop_reason!r}  — always check this before trusting the text")
+    return "setup ok", f"stop_reason={response.stop_reason}"
 
 
 def memory(llm):
@@ -60,4 +62,4 @@ SCENARIOS = {
 }
 
 if __name__ == "__main__":
-    _common.run("lab00", "Lab 00: the raw Messages API call.", SCENARIOS)
+    _common.run("lab0", "Lab 0: setup check and the raw Messages API call.", SCENARIOS)

@@ -1,272 +1,306 @@
-# Agentic Patterns from Scratch
+# Agentic Patterns from Scratch: the lab
 
-A hands-on workshop that builds the three core agent patterns, **tool use**, **reflection** and
-**planning**, from primitives. There is no agent framework and no orchestration library. Each
-pattern is a short Python file you can read in one sitting, running on Claude through the
-Anthropic API.
+You heard about tool use, reflection and planning in the lecture. In the next 90 minutes your
+team writes them yourselves, in plain Python on the Anthropic API, then competes with the other
+teams on a graded task.
 
-**The rule:** the only thing allowed to talk to a model is one call,
-`client.messages.create(...)`, from the official `anthropic` SDK. Everything else is plain
-Python: loops, lists, dicts and functions. No LangChain, LangGraph, CrewAI, agent SDKs or
-workflow engines.
+**The rule:** the only thing that talks to the model is one call, `client.messages.create(...)`.
+Everything else is loops, lists, dicts and functions you can read. No LangChain, LangGraph or
+other agent framework.
 
-The point is that once you have written the loop yourself, a framework is something you can
-choose for convenience, not a black box you need.
+## Before the lab (at home, about 10 minutes)
 
-| Lab | Pattern | You build / read | The lesson |
-|---|---|---|---|
-| 00 | The call | `agentic/llm.py` | One request in, one message out. "Memory" is a list you resend. Always check `stop_reason`. |
-| 01 | Tool use | `agentic/tools.py`, `agentic/loop.py` | An agent is a `while` loop. Tool descriptions and error messages are the model's only guide. |
-| 02 | Reflection | `agentic/reflection.py` | Generate → critique → revise. Code checks are exact; a model critic sees tone. Use both. |
-| 03 | Planning | `agentic/planning.py` | Plan with structure, validate it, execute each step in a fresh context, replan on failure. |
-| 04 | Capstone | `labs/_bookclub.py` | Combine all three, grade the *world* (not the transcript), and measure across runs. |
+One laptop per team needs this working. If two of you set it up, you have a spare.
 
-## Repository map
+1. **Install [uv](https://docs.astral.sh/uv/getting-started/installation/)**, reopen the
+   terminal, and check `uv --version`. uv installs Python 3.12 for you.
+2. **Get the code and install it:**
+
+   ```bash
+   git clone <repository URL from your facilitator>
+   cd agentic-patterns-from-scratch
+   uv sync
+   cp .env.example .env          # Windows: copy .env.example .env
+   ```
+
+3. **Edit `.env`:** paste the API key you were given (or your own, from
+   [console.anthropic.com](https://console.anthropic.com)) and set your team name:
+
+   ```env
+   ANTHROPIC_API_KEY=sk-ant-...
+   TEAM=Team Ada
+   ```
+
+   `.env` is git-ignored. Never paste a key into code, chat or a commit.
+
+4. **Check it works without the model** (free):
+
+   ```bash
+   uv run python -m unittest tests.test_core
+   ```
+
+   You should see `OK`. Some *other* tests fail on purpose until you write Labs 1 and 2.
+
+## How this lab works
+
+**Teams of 3.** Rotate roles at every lab, so everyone drives once:
+
+| Role | Job |
+|---|---|
+| **Driver** | Types and runs the commands. |
+| **Navigator** | Reads the trace aloud ("it's calling `cancel_order`…"), watches the clock. |
+| **Recorder** | Writes down the team's prediction *before* each run, pastes results into the class scoreboard, speaks in the debriefs. |
+
+**Every lab has the same rhythm:** build → predict → run → post → discuss.
+
+- **Core** steps are the path everyone finishes. **Stretch** steps are for teams that finish
+  early; skip them without guilt.
+- **Predict before you run.** Write a one-line guess, then compare. Being wrong is the
+  interesting part.
+- **Post to the scoreboard.** After each run, the terminal prints lines like this:
+
+  ```
+  Team Ada	lab1	bad-description	ORDER CANCELLED	2	850	status=cancelled
+  ```
+
+  Copy them and paste them into the next empty row of the shared class scoreboard. The columns
+  are tab-separated, so they land in the right cells. Eight teams running the same scenario
+  shows you how much a model's behaviour varies; one run can't.
+- **Stuck for 5 minutes?** Ask the team next to you. Still stuck? Use the reference solution and
+  keep going:
+
+  ```bash
+  uv run scripts/use_solution.py loop          # or: reflection
+  ```
+
+  Your attempt is kept as `agentic/loop.mine.py`. Compare the two afterwards; they are short.
+
+Every run also saves a trace to `runs/`. `uv run scripts/replay.py` plays the newest one back
+without calling the model.
+
+---
+
+## Lab 0 · Setup check (5 min)
+
+```bash
+uv run labs/00_first_call.py --scenario basics
+```
+
+This is one model call. You see the exact request dict you sent and the response you got back.
+Find `content`, `stop_reason` and `usage` in it. Post your `setup ok` line to the scoreboard:
+the facilitator watches for teams that haven't.
+
+## Lab 1 · Tool use (25 min)
+
+### Build (core, 10 min)
+
+Open `agentic/loop.py`. `run_agent` is the whole agent: call the model, run the tools it
+asks for, send the results back, repeat. Steps 1, 2 and 6 are written. **Your team writes
+steps 3 to 5**; the comments in the file say exactly what each step does.
+
+Check your work against a fake model (no key, no cost):
+
+```bash
+uv run python -m unittest tests.test_lab1_loop -v
+```
+
+When all six tests pass, your loop works. Read `agentic/tools.py` too: notice that
+`ToolBox.run` never raises an exception. Every failure comes back as text the model can read.
+
+### Predict, then run (core, 10 min)
+
+For each scenario, the Recorder writes a prediction first, then the Driver runs:
+
+```bash
+uv run labs/01_tool_use.py --scenario <name>
+```
+
+| Scenario | Setup | Predict |
+|---|---|---|
+| `tools` | a `get_order` tool | How many model calls will it take to answer? |
+| `bad-description` | the only tool is `cancel_order`, but its description says "Look up the current status of an order" | Will the customer's order survive? |
+| `good-description` | honest `get_order` and `cancel_order` | Does the order survive now? |
+| `bad-error` | the customer says "1042"; the tool expects `ORD-1042` and replies "Order not found." | Will the agent recover? |
+
+Post each scenario's line to the scoreboard.
+
+### Challenge (stretch, 5 min)
+
+In `labs/01_tool_use.py`, rewrite `TEAM_ERROR_MESSAGE`: the error the agent sees for a wrongly
+formatted id. It may describe the format, but it must not contain `ORD-1042` itself. Run
+`--scenario good-error` twice and post both results. The class votes on the best message.
+
+More to try: `parallel` (two tool calls in one turn), `step-limit` (a tool that always fails),
+`no-tools`.
+
+### Discuss (in your team, then 1 team shares)
+
+> The model never sees your Python, only a tool's name, description and schema. What does that
+> mean for who should write tool descriptions and error messages, and how they should be tested?
+
+## Lab 2 · Reflection (20 min)
+
+### Build (core, 7 min)
+
+Open `agentic/reflection.py`. `reflect` writes a draft, reviews it, and revises it until it
+passes or runs out of rounds. The review (step 1) is written. **Your team writes steps 2 and 3:**
+when to stop, and how to ask for a revision in the same conversation.
+
+```bash
+uv run python -m unittest tests.test_lab2_reflection -v
+```
+
+### Run and compare (core, 8 min)
+
+The task: Maya's book arrived damaged. She wants a refund, to keep the book, and a $25 gift card.
+Policy allows the first two, not the third. Seven Python checks score the final reply: the order
+id is present, at most 120 words, no placeholders, no gift card offered, no amount above $18,
+signed "Inkwell Books Support", plus `team_check`, which passes until you write it in the stretch
+step.
+
+**Predict:** how many of the checks will a single first draft pass?
+
+```bash
+uv run labs/02_reflection.py --scenario one-shot
+uv run labs/02_reflection.py --scenario grounded      # Python checks + a model critic, up to 3 rounds
+```
+
+Compare the score and the number of model calls, and post both lines. If time allows, try
+`self-critique` (model critic only) and `checks-only` (Python checks only).
+
+### Write a check and swap (stretch, 5 min)
+
+1. Fill in `team_check` in `labs/02_reflection.py` with a rule of your own, such as "never blames
+   the courier".
+2. Swap final drafts with a neighbouring team. Your newest one is in `runs/last-draft.txt`.
+   Paste theirs into `labs/draft.txt` and run:
+
+   ```bash
+   uv run labs/02_reflection.py --scenario check-draft
+   ```
+
+   This makes no model calls. Does your check catch something their critic missed?
+
+### Discuss
+
+> When should feedback come from code, and when from a model? In `reflect`, a passing model review
+> can never overrule a failing Python check. Agree or disagree?
+
+## Lab 3 · Planning and the tournament (30 min)
+
+The task (`GOAL` in `labs/_bookclub.py`): the book club's six members will read one science-fiction
+book under $20. Make sure there are enough copies, restocking within a $60 supplier budget. Place
+one single-copy order per member, then email each member their own order id. The grader in
+`shop/grading.py` checks the shop's real orders, spend and emails, never what the agent *says*
+it did. Lab 3 uses your Lab 1 loop.
+
+### Plan and peer review (core, 10 min)
+
+```bash
+uv run labs/03_planning.py --scenario plan-only
+```
+
+This makes one model call and writes the plan to `labs/plan.json`. Nothing is executed yet.
+**Swap screens with a neighbouring team** and review their plan for two minutes:
+
+- The catalogue has traps. Will the plan notice that *Hyperion* is fully in stock but costs $22?
+  That *Neuromancer* is $16, but restocking five copies costs $80?
+- Does it check the supplier cost before committing to a book?
+
+You may fix your own plan by editing `labs/plan.json` by hand: you are the human in the loop.
+Then execute it, step by step, each step in a fresh conversation:
+
+```bash
+uv run labs/03_planning.py --scenario plan
+```
+
+Post your result. Read `agentic/planning.py` while it runs: `validate_plan`, `execute_plan` and
+`replan` are all short.
+
+### Tournament (core, 15 min)
+
+`labs/04_tournament.py` runs the full pipeline, `plan-reflect`:
+
+1. The model writes a plan, a critic reviews it, and the model revises it.
+2. The plan is executed step by step.
+3. A verify pass checks the real state and fixes any gaps.
+
+Every run uses a fresh shop.
+
+**Rules:**
+1. Change **one** setting in the "TOURNAMENT KNOBS" block of `labs/_bookclub.py`: the system
+   prompt, the plan rubric, the verify prompt, the review rounds, or the step and replan limits.
+   Or don't change any of those, and pass `--model` instead.
+2. Don't change `GOAL`, `shop/`, the grader or `agentic/planning.py`.
+3. Run it twice and post both lines:
+
+   ```bash
+   uv run labs/04_tournament.py --runs 2 --quiet
+   ```
+
+**Scoring:** highest average checks passed (out of 6) wins. Ties go to the team with fewer
+average tokens. Write your change in the scoreboard's "Our change" column.
+
+### Discuss
+
+> Planning and reflection cost extra model calls. Looking at the scoreboard, where did the extra
+> structure pay for itself, and where was it overhead?
+
+## Debrief (10 min)
+
+The facilitator walks the scoreboard. The winning team and the most surprising team each get two
+minutes. Last question for everyone:
+
+> Now that you have written the loop yourselves, when would you reach for a framework, and what
+> would you check that it does for you?
+
+---
+
+## After the lab
+
+- `uv run labs/00_first_call.py --scenario memory`: the API is stateless, and "memory" is the
+  list you resend each time.
+- `uv run labs/03_planning.py --scenario react`: no plan at all, just one loop with every tool.
+  Compare its tokens with `plan`.
+- `uv run labs/04_tournament.py --scenario react --runs 3 --quiet`: compare strategies, not just
+  settings.
+- Ideas to build:
+  - A confirmation gate before any `cancel_` tool that asks the human with `input()`.
+  - Running independent plan steps in parallel.
+  - Giving the critic a different model from the writer.
+  - A second model that plays the customer, with its own message list. That is all
+    "multi-agent" means at this level.
+
+## Reference
 
 ```
-agentic/          the patterns (about 850 lines including comments; nothing beyond the SDK)
+agentic/          the patterns
   llm.py          the only module that calls the API: model choice, retries, token counts
   tools.py        Tool, ToolBox, ToolError
-  loop.py         run_agent: the tool-use loop
-  reflection.py   reflect, critique
-  planning.py     make_plan, validate_plan, order_steps, execute_plan, replan
-  trace.py        coloured terminal trace + JSONL in runs/
-shop/             Inkwell Books, a fake bookstore for the agents to act on
-  world.py        books, customers, orders, supplier budget, outbox
-  tools.py        the shop's methods described as tools
-  grading.py      checks the shop's final state for the book-club task
-labs/             one runnable script per lab
-tests/            offline tests with a scripted fake model (no key, no cost)
+  loop.py         run_agent            <- you write steps 3-5 (Lab 1)
+  reflection.py   reflect, critique    <- you write steps 2-3 (Lab 2)
+  planning.py     make_plan, validate_plan, execute_plan, replan
+  trace.py        terminal trace, JSONL in runs/, scoreboard lines
+shop/             Inkwell Books: a fake bookstore (every person, order and email is fictional)
+labs/             00 setup · 01 tool use · 02 reflection · 03 planning · 04 tournament
+solutions/        reference loop.py and reflection.py
+scripts/          use_solution.py · replay.py · check_solutions.py
+tests/            offline tests with a scripted fake model (tests/fakes.py)
 ```
 
-Everything in the shop is fictional: people, orders, prices, emails. Nothing leaves your machine
-except the model calls.
-
-## Setup
-
-1. **Get an API key.** Sign in at the [Claude Console](https://console.anthropic.com), add a
-   little credit under **Billing**, then **API Keys → Create Key**. Copy it straight away; the
-   Console shows it once. A full workshop run on `claude-haiku-5-5` costs well under a dollar.
-   Setting a monthly spend limit is a good idea for a shared workshop.
-2. **Install [uv](https://docs.astral.sh/uv/getting-started/installation/)**, then reopen your
-   terminal and check `uv --version`. uv downloads Python 3.12 if you need it.
-3. **Install and configure:**
-
-   ```bash
-   git clone <this repository> && cd agentic-patterns-from-scratch
-   uv sync
-   cp .env.example .env        # Windows: copy .env.example .env
-   ```
-
-   Open `.env` and replace `your-key-here` with your key. `.env` is git-ignored. Never paste a
-   key into code, chat or a commit.
-
-4. **Check everything works offline** (no key needed, no cost):
-
-   ```bash
-   uv run python -m unittest
-   ```
-
-Every lab accepts `--scenario NAME` to run one scenario and `--model ID` to pick a model
-(otherwise it uses `ANTHROPIC_MODEL` from `.env`, then `claude-haiku-5-5`). Use `--help` to list
-the scenarios. Each run also writes a JSONL trace to `runs/`.
-
-Models are not deterministic. Any scenario below can turn out differently on your run, and
-that is part of what the workshop teaches.
-
----
-
-## Lab 00: The call
-
-**Read** `agentic/llm.py`. It is short, and it is the only place in the
-repository that touches the network.
-
-```bash
-uv run labs/00_first_call.py
-```
-
-| Scenario | What to look at |
+| Command | What it does |
 |---|---|
-| `basics` | The request is a small dict and the response is a typed `Message`. Find `content`, `stop_reason` and `usage`. |
-| `memory` | Ask "what's my order number?" without the history and the model cannot know. With the history appended, it can. The API is stateless; memory is your `messages` list. |
-| `max-tokens` | A reply cut off at 30 tokens looks like a normal reply. Only `stop_reason == "max_tokens"` tells you it is unfinished. |
+| `uv run python -m unittest tests.test_lab1_loop -v` | Check your Lab 1 loop |
+| `uv run python -m unittest tests.test_lab2_reflection -v` | Check your Lab 2 reflection |
+| `uv run python -m unittest` | Everything (passes fully once Labs 1 and 2 are done) |
+| `uv run scripts/use_solution.py loop` / `--undo` | Swap the reference solution in and out |
+| `uv run scripts/replay.py [file] [--delay 0.5]` | Replay a saved trace, no model calls |
+| `uv run scripts/check_solutions.py` | Run every test against the reference solutions |
 
-`LLM` turns the SDK's built-in retries off (`max_retries=0`) and does its own exponential
-backoff on 429, 5xx and connection errors, so you can see retries happen in the trace.
+Every lab accepts `--team`, `--model` and `--scenario`. Use `--help` to list the scenarios. The
+default model is `claude-haiku-5-5`. Set `ANTHROPIC_MODEL` in `.env` or pass `--model` to change it.
 
-**Exercises**
-1. Add a `system` argument to the `basics` scenario and compare the replies.
-2. Make `LLM` record the cost of each call from its token counts and print a running total.
-
-## Lab 01: Tool use
-
-**Read** `agentic/tools.py`, then `agentic/loop.py`. Here is the whole agent loop:
-
-```python
-for step in range(1, max_steps + 1):
-    response = llm(messages=messages, system=system, tools=toolbox.specs())
-    messages.append(as_assistant_message(response))
-    if response.stop_reason != "tool_use":
-        return AgentResult(text_of(response), messages, step, response.stop_reason)
-    results = [run each tool_use block -> {"type": "tool_result", "tool_use_id": ..., ...}]
-    messages.append({"role": "user", "content": results})
-return AgentResult("", messages, max_steps, "max_steps")
-```
-
-To the model, a tool is a name, a description and a JSON Schema. It never sees your Python.
-`ToolBox.run` never raises an exception. Unknown tools, bad arguments, `ToolError`s and crashes
-all come back as text with `is_error: true`, because the model can only recover from what it
-can read.
-
-```bash
-uv run labs/01_tool_use.py
-```
-
-| Scenario | Setup | What usually happens |
-|---|---|---|
-| `no-tools` | none | The model cannot know where the order is. |
-| `tools` | `get_order` | One tool call, then an answer: two model calls. |
-| `parallel` | `search_catalog` | The model asks for Dune and Neuromancer in one turn. The loop must answer every `tool_use` block, each paired by `tool_use_id`. |
-| `bad-description` | only `cancel_order`, described as "Look up the current status of an order" | The model trusts the description and **cancels the order**. |
-| `good-description` | `get_order` plus an honest, destructive-sounding `cancel_order` | It looks the order up; the order survives. |
-| `bad-error` | `"1042"` gets back "Order not found." | The agent believes it and gives up. |
-| `good-error` | `"1042"` gets back the expected format, e.g. `ORD-1042` | The agent retries with `ORD-1042` and succeeds. The trace lists every id it tried. |
-| `step-limit` | a tool that always fails | If the model keeps retrying, `max_steps` is what stops it. |
-
-**Exercises**
-1. Write a `get_customer_orders` tool for Maya and let the agent answer "what have I ordered?".
-2. Add a confirmation gate: before any tool whose name starts with `cancel_`, ask the human at
-   the terminal (`input()`) and return "Cancelled by the user" as an error if they say no. This
-   is human-in-the-loop in five lines.
-3. Write `tool_from_function(fn)` that builds the JSON Schema from type hints and the docstring.
-   Compare it with writing schemas by hand.
-
-## Lab 02: Reflection
-
-**Read** `agentic/reflection.py`. The loop is:
-
-```
-draft = model(task)
-repeat up to max_rounds:
-    issues = python_checks(draft) + critic(draft, rubric)
-    if no issues: stop
-    draft = model(same conversation + "fix these issues")
-```
-
-The critic returns structured output by being **forced** to call a `submit_review` tool
-(`tool_choice={"type": "tool", ...}`). That tool never runs; its input schema *is* the output
-format. This is the simplest reliable way to get JSON from a model.
-
-The task is a reply to Maya, whose book arrived damaged and who wants a refund, to keep the
-book, and a $25 gift card. Policy allows the first two, not the third.
-
-```bash
-uv run labs/02_reflection.py
-```
-
-| Scenario | Feedback | Watch for |
-|---|---|---|
-| `one-shot` | none (scored once) | How many of the six checks a first draft passes. |
-| `self-critique` | the model critic with a rubric | Catches tone and missing content; can be lenient or invent problems. |
-| `checks-only` | six Python checks (order id, ≤120 words, no placeholders, no gift card, no amount above $18, sign-off) | Exact and never fooled, but blind to anything you did not write a check for. |
-| `grounded` | checks feed the critic | Usually the best of both, at the cost of more calls. Compare call counts. |
-
-A design rule worth noticing: the critic can never overrule a failing check
-(`passed = review.passed and not check_issues`).
-
-**Exercises**
-1. Add a check that the reply does not blame the courier, and see which scenarios catch it.
-2. Give the critic a *different* model from the writer (`LLM("claude-sonnet-5-5")`). Does a
-   stronger critic help a weaker writer?
-3. Reflection is not free: log tokens per round and find the point where extra rounds stop
-   improving the score.
-
-## Lab 03: Planning
-
-**Read** `agentic/planning.py`, then `labs/_bookclub.py`.
-
-The task: *the book club (six members) will read one science-fiction book under $20; make sure
-there are enough copies, restocking within a $60 supplier budget; place one single-copy order
-per member; email each member their own order id.* The catalogue has two traps:
-
-- **Hyperion** is science fiction and fully in stock, but costs $22.
-- **Neuromancer** is $16, but there is one copy and restocking five costs $80.
-
-Dune, Foundation and The Left Hand of Darkness all work. The grader (`shop/grading.py`) checks
-the shop's actual orders, supplier spend and outbox, never what the agent claims.
-
-```bash
-uv run labs/03_planning.py
-```
-
-| Scenario | How it works |
-|---|---|
-| `react` | One `run_agent` call with the whole goal and all twelve tools (`max_steps=30`). |
-| `plan` | `make_plan` (forced `submit_plan` tool, can see but not call the tools) → `validate_plan` (ids, dependencies, cycles) → `execute_plan`: each step runs in a **fresh** conversation that holds only the goal and earlier results. A step that ends in `FAILED:` or hits its step limit triggers `replan` for the remaining work. |
-
-Things to compare in the trace: total input tokens (the `react` context grows with every tool
-result; plan steps stay small), where each strategy chooses the book, and whether it gets a
-supplier quote before committing.
-
-**Exercises**
-1. Pass each step only the results of the steps it `depends_on` instead of all earlier results.
-   What happens to tokens and to correctness?
-2. Make `execute_plan` run independent steps (no shared dependencies) in parallel with
-   `concurrent.futures.ThreadPoolExecutor`.
-3. Change the shop so Dune's supplier is out of stock (`restock` raises a `ToolError`) and watch
-   a replan happen.
-
-## Lab 04: Capstone
-
-`plan-reflect` combines everything:
-
-1. **Plan**, then **critique the plan** against a rubric and revise it. This is cheap, because
-   nothing has happened yet.
-2. **Execute** step by step with tools, replanning on failure.
-3. **Verify the outcome:** a fresh agent inspects the real state with read-only tools, fixes
-   only what is missing, and reports a checklist. This is reflection on results, not on text.
-
-```bash
-uv run labs/04_capstone.py                        # react, plan, plan-reflect once each
-uv run labs/04_capstone.py --runs 3 --quiet       # just the comparison table
-uv run labs/04_capstone.py --scenario plan-reflect --model claude-sonnet-5-5
-```
-
-It prints a table of checks passed, model calls and tokens per run. One run proves little; look
-at the spread over several, and at what the extra structure costs.
-
-**Exercises**
-1. Add a `--max-cost` budget that stops a strategy once its token spend passes a limit.
-2. Turn the verify pass's checklist into structured output (a forced tool) and compare it with
-   the grader. When does the agent's self-assessment disagree with reality?
-3. Replace the scripted customer request with a second model playing the customer, with its own
-   separate message list. That is all "multi-agent" means at the primitive level.
-
----
-
-## Tests
-
-```bash
-uv run python -m unittest
-```
-
-These 39 tests run offline against `tests/fakes.py:ScriptedLLM`, which returns real SDK
-`Message` objects from a script. They cover the loop (pairing, parallel calls, step cap,
-truncation), the retrying wrapper, reflection rounds, plan validation, execution and replanning,
-the shop and grader, and two full book-club runs from start to grade. Writing a scripted fake
-is also the best way to test your own agents without paying for model calls.
-
-## From the original workshop
-
-This is a framework-free rebuild of the ideas in
-[nuwank7/agentic-workshop](https://github.com/nuwank7/agentic-workshop), which used LangGraph
-and τ²-bench.
-
-| Original | Here |
-|---|---|
-| LangGraph `create_agent` / tool nodes | `agentic/loop.py:run_agent`, a `for` loop |
-| LangGraph checkpointer with a `thread_id` | the `messages` list you keep and resend (Lab 00 `memory`) |
-| LangChain callback handler for tracing | `agentic/trace.py`, explicit calls |
-| `wrong-tool-description`, `wrong-error-message` | Lab 01 `bad-description`, `bad-error` |
-| τ²-bench telecom tasks graded on environment state | Inkwell Books book-club task graded by `shop/grading.py` |
-| (not covered) | Reflection (Lab 02) and planning with replanning (Lab 03) |
+This is a framework-free rebuild of [nuwank7/agentic-workshop](https://github.com/nuwank7/agentic-workshop).
+The original used a LangGraph agent and a LangGraph checkpointer; here they are `run_agent` and
+the `messages` list you resend. Its misleading-tool and misleading-error demos are Lab 1, and its
+grading of the environment's final state is Lab 3's grader. Reflection and planning are new.

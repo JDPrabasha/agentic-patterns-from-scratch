@@ -15,16 +15,24 @@ Use `uv` from the repository root.
 
 ```bash
 uv sync                                   # install
-uv run python -m unittest                 # offline tests: no key, no cost
-uv run labs/00_first_call.py [--scenario NAME] [--model ID]
-uv run labs/01_tool_use.py
-uv run labs/02_reflection.py
-uv run labs/03_planning.py
-uv run labs/04_capstone.py [--runs N] [--quiet]
+uv run scripts/check_solutions.py         # offline: full suite against solutions/ (must pass)
+uv run python -m unittest                 # offline: 14 tests fail BY DESIGN until Labs 1-2 are written
+uv run labs/00_first_call.py --scenario basics [--team NAME] [--model ID]
+uv run labs/01_tool_use.py --scenario NAME
+uv run labs/02_reflection.py --scenario NAME
+uv run labs/03_planning.py --scenario plan-only|plan|react
+uv run labs/04_tournament.py [--runs N] [--quiet]
 ```
 
-Labs make real, billed API calls. Run them only when asked. Always run the offline tests before
-finishing a code change.
+## Starter vs solution
+
+This repo is handed to participants. `agentic/loop.py` (steps 3-5) and `agentic/reflection.py`
+(steps 2-3) are deliberately incomplete and raise `NotImplementedError`; `solutions/` holds the
+complete files. Change both together, and keep the starter's step comments in sync with the
+solution. Never "fix" the starter by filling it in.
+
+Labs make real, billed API calls. Run them only when asked. Before finishing a code change, run
+`scripts/check_solutions.py` (must pass) and the plain suite (only the by-design failures).
 
 ## Layout and conventions
 
@@ -33,8 +41,11 @@ finishing a code change.
   calls the API.
 - `shop/`: the fictional Inkwell Books domain. Tool error messages are written for the model to
   act on. `grading.py` judges state only.
-- `labs/`: runnable scripts; `_common.py` sets `sys.path` and loads `.env`; `_bookclub.py` holds
-  the strategies shared by labs 03 and 04.
+- `labs/`: runnable scripts; `_common.py` sets `sys.path`, loads `.env`, adds `--team` and prints
+  tab-separated scoreboard lines from each scenario's `(result, detail)` return; `_bookclub.py` holds
+  the task, the tournament knobs and the strategies shared by labs 03 and 04.
+- `README.md` is the participants' 90-minute lab sheet (teams of 3). Facilitator material lives
+  outside the repo.
 - `tests/fakes.py:ScriptedLLM` replays scripted SDK `Message`s; new behaviour should get an
   offline test with it.
 - Default model: `claude-haiku-5-5` (`agentic/llm.py:DEFAULT_MODEL`). The README tables and

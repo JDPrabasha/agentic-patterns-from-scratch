@@ -132,16 +132,20 @@ def reflect(
         trace.block(f"Round {n} draft", draft)
         trace.block(f"Round {n} review: {'PASS' if passed else 'FAIL'}", "\n".join(f"- {i}" for i in issues))
 
-        # STEP 2: stop when it passes, or when we are out of rounds.
-        if passed:
-            return ReflectionResult(draft, rounds, True)
-        if n == max_rounds:
-            break
-
-        # STEP 3: revise in the same conversation, so the model sees its own draft.
-        feedback = "A reviewer found these problems:\n" + "\n".join(f"- {i}" for i in issues)
-        feedback += "\n\nRewrite your reply so it fixes every problem. Output only the new reply."
-        messages.append({"role": "user", "content": feedback})
-        draft = generate(llm, system=system, messages=messages)
+        # ------------------------------------------------------------------
+        # LAB 2 — YOUR TEAM WRITES STEPS 2 AND 3.  Check: uv run python -m unittest tests.test_lab2_reflection -v
+        #
+        # STEP 2: Decide whether to stop.
+        #   - If the draft passed, return ReflectionResult(draft, rounds, True).
+        #   - If this was the last round (n == max_rounds), break out of the loop.
+        #
+        # STEP 3: Ask for a revision IN THE SAME CONVERSATION, so the model sees its own draft.
+        #   Build a feedback string that lists every issue (one "- issue" per line) and ends with
+        #   "Rewrite your reply so it fixes every problem. Output only the new reply."
+        #   Append it to `messages` as a "user" message, then:
+        #     draft = generate(llm, system=system, messages=messages)
+        #   (generate() appends the model's reply to `messages` for you.)
+        # ------------------------------------------------------------------
+        raise NotImplementedError("Lab 2: write STEPS 2-3 in agentic/reflection.py")
 
     return ReflectionResult(draft, rounds, False)
