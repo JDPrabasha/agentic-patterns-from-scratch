@@ -1,7 +1,7 @@
-"""Lab 0 — Setup check (and, after the lab, why "memory" is just a list).
+"""Lab A — Setup check (and, after the lab, why "memory" is just a list).
 
-Run:  uv run labs/00_first_call.py --scenario basics --team <your-team>
-      uv run labs/00_first_call.py --scenario memory        (after the lab)
+Run:  uv run labs/a_first_call.py --scenario basics --team <your-team>
+      uv run labs/a_first_call.py --scenario memory        (after the lab)
 Read: agentic/llm.py
 """
 
@@ -62,4 +62,4 @@ SCENARIOS = {
 }
 
 if __name__ == "__main__":
-    _common.run("lab0", "Lab 0: setup check and the raw Messages API call.", SCENARIOS)
+    _common.run("labA", "Lab A: setup check and the raw Messages API call.", SCENARIOS)

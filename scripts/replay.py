@@ -1,7 +1,7 @@
 """Replay a saved trace without calling the model (no key, no cost).
 
     uv run scripts/replay.py                         # the newest file in runs/
-    uv run scripts/replay.py examples/lab1-bad-description.jsonl --delay 0.5
+    uv run scripts/replay.py examples/labB-bad-description.jsonl --delay 0.5
 
 Every lab run saves its trace to runs/<timestamp>-<lab>.jsonl. If your key or the
 network fails during the lab, replay a recording from examples/ and keep going.

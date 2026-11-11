@@ -1,7 +1,7 @@
 """Parity harness for the framework lab.
 
 Runs YOUR framework agent (framework_lab/my_agent.py) and the from-scratch
-baseline through the same Lab 1 scenarios, with the same tools and the same
+baseline through the same Lab B scenarios, with the same tools and the same
 shop, and measures both the same way:
 
   * outcome     judged from the shop's state and the tool-call log, never from the reply
@@ -106,7 +106,7 @@ class metered:
         return False
 
 
-# --- scenarios: same tools and judges as Lab 1 ------------------------------
+# --- scenarios: same tools and judges as Lab B ------------------------------
 
 
 def _logged(tool: Tool, log: list) -> Tool:
@@ -196,7 +196,7 @@ SCENARIOS = {
 
 
 def baseline_run(question, *, system, tools, model, max_steps):
-    """The from-scratch agent from Lab 1 (solutions/loop.py semantics)."""
+    """The from-scratch agent from Lab B (solutions/loop.py semantics)."""
     from agentic.tools import ToolBox
 
     result = run_agent(LLM(model), system=system, messages=[{"role": "user", "content": question}],

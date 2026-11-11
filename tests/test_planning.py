@@ -1,4 +1,4 @@
-"""Checks for agentic/planning.py (ready-made). Execution tests need your Lab 1 loop."""
+"""Checks for agentic/planning.py (ready-made). Execution tests need your Lab B loop."""
 
 import unittest
 

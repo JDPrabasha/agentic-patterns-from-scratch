@@ -12,25 +12,25 @@ comparing several.
 | **Question** | What is an agent, really, once you strip the libraries away? | What does a framework buy you, what does it cost, and when is it not worth it? |
 | **You build** | A support agent that looks up and cancels orders with tools; a reply writer that drafts, critiques and revises itself; a planner that runs a six-person book-club order end to end | Short spikes of the same support agent on each shortlisted framework (LangGraph, Pydantic AI, CrewAI, AutoGen, smolagents and others), then the full agent on the one you choose |
 | **You write by hand** | The agent loop (steps 3–5), the reflection stop and revise steps, tool error messages, a custom check, plan edits, one tournament setting | The adapter from our tools to each framework; your selection criteria and weights; a written decision |
-| **Judged by** | Python graders on the shop's real state (orders, spend, emails), never on what the agent claims | The same seven Lab 1 scenarios, run side by side against your own loop, plus your decision record |
+| **Judged by** | Python graders on the shop's real state (orders, spend, emails), never on what the agent claims | The same seven Lab B scenarios, run side by side against your own loop, plus your decision record |
 | **You leave with** | A ~60-line agent loop you understand line by line | A trade-off matrix across frameworks, a defended pick, and concrete rules for when you'd write the loop yourself |
 
 **What you have at the end of both sessions:**
 
-1. A tool-using support agent built on your own loop (Lab 1).
-2. A self-correcting reply writer checked by both code and a model critic (Lab 2).
-3. A planning agent that places real (fake) orders within a budget and emails each customer (Lab 3).
-4. The Lab 1 agent rebuilt on the framework your team chose, measured against your own loop on
+1. A tool-using support agent built on your own loop (Lab B).
+2. A self-correcting reply writer checked by both code and a model critic (Lab C).
+3. A planning agent that places real (fake) orders within a budget and emails each customer (Lab D).
+4. The Lab B agent rebuilt on the framework your team chose, measured against your own loop on
    outcome, model calls, tokens, fidelity to your prompts, code size and dependencies.
 5. A short decision record: the trade-offs of each framework, why you picked yours, and when you
    would skip every framework and write the loop yourself.
 
 | Session 1 schedule | Min | Session 2 schedule | Min |
 |---|---|---|---|
-| Lab 0 · Setup check | 5 | Criteria and predictions from the docs | 10 |
-| Lab 1 · Tool use | 28 | Survey: spike each framework, read its loop | 30 |
-| Lab 2 · Reflection | 20 | Pick, then build on your choice | 25 |
-| Lab 3 · Planning and tournament | 30 | Measure against your own loop | 5 |
+| Lab A · Setup check | 5 | Criteria and predictions from the docs | 10 |
+| Lab B · Tool use | 28 | Survey: spike each framework, read its loop | 30 |
+| Lab C · Reflection | 20 | Pick, then build on your choice | 25 |
+| Lab D · Planning and tournament | 30 | Measure against your own loop | 5 |
 | Debrief | 7 | Challenge round with another team; write it up | 20 |
 
 ## Session 1: from scratch
@@ -74,7 +74,7 @@ One laptop per team needs this working. If two of you set it up, you have a spar
    uv run python -m unittest tests.test_core
    ```
 
-   You should see `OK`. Some *other* tests fail on purpose until you write Labs 1 and 2.
+   You should see `OK`. Some *other* tests fail on purpose until you write Labs B and C.
 
 ## How this lab works
 
@@ -88,7 +88,7 @@ build → predict → run → post → discuss.
 - **Post to the scoreboard.** After each run, the terminal prints lines like this:
 
   ```
-  Team Ada	lab1	bad-description	ORDER CANCELLED	2	850	status=cancelled
+  Team Ada	labB	bad-description	ORDER CANCELLED	2	850	status=cancelled
   ```
 
   Copy them and paste them into the next empty row of the shared class scoreboard. The columns
@@ -108,17 +108,17 @@ without calling the model.
 
 ---
 
-## Lab 0 · Setup check (5 min)
+## Lab A · Setup check (5 min)
 
 ```bash
-uv run labs/00_first_call.py --scenario basics
+uv run labs/a_first_call.py --scenario basics
 ```
 
 This is one model call. You see the exact request dict you sent and the response you got back.
 Find `content`, `stop_reason` and `usage` in it. Post your `setup ok` line to the scoreboard:
 the facilitator watches for teams that haven't.
 
-## Lab 1 · Tool use (28 min)
+## Lab B · Tool use (28 min)
 
 ### On paper first (core, 3 min)
 
@@ -136,7 +136,7 @@ steps 3 to 5**; the comments in the file say exactly what each step does.
 Check your work against a fake model (no key, no cost):
 
 ```bash
-uv run python -m unittest tests.test_lab1_loop -v
+uv run python -m unittest tests.test_lab_b_loop -v
 ```
 
 When all six tests pass, your loop works. Read `agentic/tools.py` too: notice that
@@ -147,7 +147,7 @@ When all six tests pass, your loop works. Read `agentic/tools.py` too: notice th
 For each scenario, write a one-line prediction first, then run:
 
 ```bash
-uv run labs/01_tool_use.py --scenario <name>
+uv run labs/b_tool_use.py --scenario <name>
 ```
 
 | Scenario | Setup | Predict |
@@ -162,7 +162,7 @@ trace where it went wrong, and compare the `tools` trace with your paper sketch.
 
 ### Challenge (stretch, 5 min)
 
-In `labs/01_tool_use.py`, rewrite `TEAM_ERROR_MESSAGE`: the error the agent sees for a wrongly
+In `labs/b_tool_use.py`, rewrite `TEAM_ERROR_MESSAGE`: the error the agent sees for a wrongly
 formatted id. It may describe the format, but it must not contain `ORD-1042` itself. Run
 `--scenario good-error` twice and post both results. The class votes on the best message.
 
@@ -174,7 +174,7 @@ More to try: `parallel` (two tool calls in one turn), `step-limit` (a tool that 
 > The model never sees your Python, only a tool's name, description and schema. What does that
 > mean for who should write tool descriptions and error messages, and how they should be tested?
 
-## Lab 2 · Reflection (20 min)
+## Lab C · Reflection (20 min)
 
 ### Build (core, 7 min)
 
@@ -183,7 +183,7 @@ passes or runs out of rounds. The review (step 1) is written. **Your team writes
 when to stop, and how to ask for a revision in the same conversation.
 
 ```bash
-uv run python -m unittest tests.test_lab2_reflection -v
+uv run python -m unittest tests.test_lab_c_reflection -v
 ```
 
 ### Run and compare (core, 8 min)
@@ -199,8 +199,8 @@ its draft against the six written checks yourselves before reading the script's 
 you and the code disagree?
 
 ```bash
-uv run labs/02_reflection.py --scenario one-shot
-uv run labs/02_reflection.py --scenario grounded      # Python checks + a model critic, up to 3 rounds
+uv run labs/c_reflection.py --scenario one-shot
+uv run labs/c_reflection.py --scenario grounded      # Python checks + a model critic, up to 3 rounds
 ```
 
 Compare the score and the number of model calls, and post both lines. If time allows, try
@@ -208,7 +208,7 @@ Compare the score and the number of model calls, and post both lines. If time al
 
 ### Write a check (stretch, 5 min)
 
-Fill in `team_check` in `labs/02_reflection.py` with a rule of your own, such as "never blames
+Fill in `team_check` in `labs/c_reflection.py` with a rule of your own, such as "never blames
 the courier". Run `--scenario grounded` again. Does the loop now revise for your rule, and how
 many extra model calls does it cost?
 
@@ -217,13 +217,13 @@ many extra model calls does it cost?
 > When should feedback come from code, and when from a model? In `reflect`, a passing model review
 > can never overrule a failing Python check. Agree or disagree?
 
-## Lab 3 · Planning and the tournament (30 min)
+## Lab D · Planning and the tournament (30 min)
 
 The task (`GOAL` in `labs/_bookclub.py`): the book club's six members will read one science-fiction
 book under $20. Make sure there are enough copies, restocking within a $60 supplier budget. Place
 one single-copy order per member, then email each member their own order id. The grader in
 `shop/grading.py` checks the shop's real orders, spend and emails, never what the agent *says*
-it did. Lab 3 uses your Lab 1 loop.
+it did. Lab D uses your Lab B loop.
 
 ### Plan and peer review (core, 10 min)
 
@@ -231,7 +231,7 @@ First, write your own plan for the goal: five or six numbered steps, in two minu
 looking at the catalogue. Then let the model write one:
 
 ```bash
-uv run labs/03_planning.py --scenario plan-only
+uv run labs/d_planning.py --scenario plan-only
 ```
 
 This makes one model call and writes the plan to `labs/plan.json`. Nothing is executed yet.
@@ -246,7 +246,7 @@ You may fix your own plan by editing `labs/plan.json` by hand: you are the human
 Then execute it, step by step, each step in a fresh conversation:
 
 ```bash
-uv run labs/03_planning.py --scenario plan
+uv run labs/d_planning.py --scenario plan
 ```
 
 Post your result. Read `agentic/planning.py` while it runs: `validate_plan`, `execute_plan` and
@@ -254,7 +254,7 @@ Post your result. Read `agentic/planning.py` while it runs: `validate_plan`, `ex
 
 ### Tournament (core, 15 min)
 
-`labs/04_tournament.py` runs the full pipeline, `plan-reflect`:
+`labs/d_tournament.py` runs the full pipeline, `plan-reflect`:
 
 1. The model writes a plan, a critic reviews it, and the model revises it.
 2. The plan is executed step by step.
@@ -270,7 +270,7 @@ Every run uses a fresh shop.
 3. Run it twice and post both lines:
 
    ```bash
-   uv run labs/04_tournament.py --runs 2 --quiet
+   uv run labs/d_tournament.py --runs 2 --quiet
    ```
 
 **Scoring:** highest average checks passed (out of 6) wins. Ties go to the team with fewer
@@ -293,14 +293,14 @@ minutes. Last question for everyone:
 
 ## Session 2: frameworks
 
-Same support agent as Lab 1, built again on someone else's loop. Your team:
+Same support agent as Lab B, built again on someone else's loop. Your team:
 
 1. **Writes criteria and weights** for choosing a framework, and predicts from each framework's
    docs alone how it will handle your tools, errors and step limits.
-2. **Spikes every framework on the shortlist:** the smallest version of the Lab 1 agent that gets
+2. **Spikes every framework on the shortlist:** the smallest version of the Lab B agent that gets
    one tool call through to Claude and back, measured by the same harness. You also find, in each
    framework's source, the loop that does what your `run_agent` does.
-3. **Picks one**, names the runner-up, and builds the full agent on it: all seven Lab 1 scenarios,
+3. **Picks one**, names the runner-up, and builds the full agent on it: all seven Lab B scenarios,
    side by side with your own loop.
 4. **Defends the pick** against a team that chose differently, and decides a set of design cases:
    framework or hand-written loop?
@@ -311,11 +311,11 @@ The full brief is in [`framework_lab/README.md`](framework_lab/README.md).
 
 ## After the lab
 
-- `uv run labs/00_first_call.py --scenario memory`: the API is stateless, and "memory" is the
+- `uv run labs/a_first_call.py --scenario memory`: the API is stateless, and "memory" is the
   list you resend each time.
-- `uv run labs/03_planning.py --scenario react`: no plan at all, just one loop with every tool.
+- `uv run labs/d_planning.py --scenario react`: no plan at all, just one loop with every tool.
   Compare its tokens with `plan`.
-- `uv run labs/04_tournament.py --scenario react --runs 3 --quiet`: compare strategies, not just
+- `uv run labs/d_tournament.py --scenario react --runs 3 --quiet`: compare strategies, not just
   settings.
 - Ideas to build:
   - A confirmation gate before any `cancel_` tool that asks the human with `input()`.
@@ -330,12 +330,12 @@ The full brief is in [`framework_lab/README.md`](framework_lab/README.md).
 agentic/          the patterns
   llm.py          the only module that calls the API: model choice, retries, token counts
   tools.py        Tool, ToolBox, ToolError
-  loop.py         run_agent            <- you write steps 3-5 (Lab 1)
-  reflection.py   reflect, critique    <- you write steps 2-3 (Lab 2)
+  loop.py         run_agent            <- you write steps 3-5 (Lab B)
+  reflection.py   reflect, critique    <- you write steps 2-3 (Lab C)
   planning.py     make_plan, validate_plan, execute_plan, replan
   trace.py        terminal trace, JSONL in runs/, scoreboard lines
 shop/             Inkwell Books: a fake bookstore (every person, order and email is fictional)
-labs/             00 setup · 01 tool use · 02 reflection · 03 planning · 04 tournament
+labs/             a setup · b tool use · c reflection · d planning, d tournament
 solutions/        reference loop.py and reflection.py
 scripts/          use_solution.py · replay.py · check_solutions.py
 framework_lab/    the follow-up lab: brief, spikes/, my_agent.py stub, parity.py harness, JUSTIFICATION.md
@@ -344,9 +344,9 @@ tests/            offline tests with a scripted fake model (tests/fakes.py)
 
 | Command | What it does |
 |---|---|
-| `uv run python -m unittest tests.test_lab1_loop -v` | Check your Lab 1 loop |
-| `uv run python -m unittest tests.test_lab2_reflection -v` | Check your Lab 2 reflection |
-| `uv run python -m unittest` | Everything (passes fully once Labs 1 and 2 are done) |
+| `uv run python -m unittest tests.test_lab_b_loop -v` | Check your Lab B loop |
+| `uv run python -m unittest tests.test_lab_c_reflection -v` | Check your Lab C reflection |
+| `uv run python -m unittest` | Everything (passes fully once Labs B and C are done) |
 | `uv run scripts/use_solution.py loop` / `--undo` | Swap the reference solution in and out |
 | `uv run scripts/replay.py [file] [--delay 0.5]` | Replay a saved trace, no model calls |
 | `uv run scripts/check_solutions.py` | Run every test against the reference solutions |
@@ -357,5 +357,5 @@ default model is `claude-haiku-5-5`. Set `ANTHROPIC_MODEL` in `.env` or pass `--
 
 This is a framework-free rebuild of [nuwank7/agentic-workshop](https://github.com/nuwank7/agentic-workshop).
 The original used a LangGraph agent and a LangGraph checkpointer; here they are `run_agent` and
-the `messages` list you resend. Its misleading-tool and misleading-error demos are Lab 1, and its
-grading of the environment's final state is Lab 3's grader. Reflection and planning are new.
+the `messages` list you resend. Its misleading-tool and misleading-error demos are Lab B, and its
+grading of the environment's final state is Lab D's grader. Reflection and planning are new.

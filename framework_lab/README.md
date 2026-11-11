@@ -1,9 +1,9 @@
 # Framework lab: survey the frameworks, pick one, and know when not to
 
 In Session 1 you wrote the agent loop yourselves. In this session you build the same support agent
-from Lab 1 again, this time on someone else's loop, and decide whether that was worth it.
+from Lab B again, this time on someone else's loop, and decide whether that was worth it.
 
-**What you build:** the Lab 1 support agent (looks up and cancels Inkwell Books orders with tools)
+**What you build:** the Lab B support agent (looks up and cancels Inkwell Books orders with tools)
 as a quick spike on every framework on the shortlist, then in full on the one you pick, measured
 side by side with your own loop on the same seven scenarios.
 
@@ -27,14 +27,14 @@ each project's current docs and version on the day, because this space changes m
 | Code-writing agent | smolagents (`smolagents`) | Tool-calling vs code-acting agents; how it reaches Claude (LiteLLM?) |
 | Model-driven SDK | Strands Agents (`strands-agents`) or OpenAI Agents SDK (`openai-agents`, via LiteLLM) | Provider abstraction; what the "agent" object owns |
 | Vendor SDK helpers | Anthropic SDK tool runner; Claude Agent SDK (`claude-agent-sdk`) | Thinnest option vs a full agent runtime; tools as functions vs MCP |
-| Baseline | From scratch (`agentic/loop.py`) | Your own Lab 1 loop: the yardstick for every row |
+| Baseline | From scratch (`agentic/loop.py`) | Your own Lab B loop: the yardstick for every row |
 
 ## What you hand in
 
 1. **One spike per framework** in `framework_lab/spikes/<name>.py`: a `run()` with the same
    signature as `my_agent.py`, good enough to pass the `tools` scenario.
 2. **`framework_lab/my_agent.py`**: the full build on your chosen framework. It must run all seven
-   Lab 1 scenarios through `framework_lab/parity.py`. If you chose from scratch, say so in
+   Lab B scenarios through `framework_lab/parity.py`. If you chose from scratch, say so in
    `FRAMEWORK` and wire `run()` to the baseline; your written reasoning carries the weight instead.
 3. **`framework_lab/JUSTIFICATION.md`**: at most three pages, from the template in that file.
 4. **Your parity lines on the class scoreboard** (the lab column says `framework`), plus one line
@@ -51,7 +51,7 @@ each project's current docs and version on the day, because this space changes m
 - Don't import `agentic.loop` or `agentic.llm` in a spike or in `my_agent.py` (unless you chose
   from scratch). The framework must do the looping and the API calls. You may read `Tool` objects
   from `agentic.tools`, because they are the shared tool definitions.
-- Pass every tool's `description` and `input_schema` through unchanged. Lab 1's
+- Pass every tool's `description` and `input_schema` through unchanged. Lab B's
   `bad-description` scenario is meaningless otherwise.
 - Write your criteria, weights and predictions down **before** the survey. Changing criteria
   afterwards is allowed, but say so and say why.
@@ -115,7 +115,7 @@ PARITY_DEBUG=1 uv run framework_lab/parity.py          # full traceback if your 
 
 | Column | How it's measured | Why it matters for your decision |
 |---|---|---|
-| outcome | The shop's state and the tool-call log, as in Lab 1 | Did the framework change the agent's behaviour, for better or worse? |
+| outcome | The shop's state and the tool-call log, as in Lab B | Did the framework change the agent's behaviour, for better or worse? |
 | tools | Tool functions wrapped by the harness | Does the framework call tools more often or less often, or retry them silently? |
 | api / tokens | The harness wraps the Anthropic SDK's `Messages.create` | Does the framework add model calls or tokens (planning steps, retries, extra prompts)? "unmeasured" means it bypasses the SDK, so you can't see what it sends. That is a cost in itself. |
 | "sent to the API" | The first request your framework sends is compared with the system prompt, tool descriptions and schemas you gave it | Did the framework add hidden instructions, rewrite your descriptions or change your schemas? |

@@ -1,6 +1,6 @@
-"""Lab 1 checks: does your run_agent (agentic/loop.py) handle tool calls correctly?
+"""Lab B checks: does your run_agent (agentic/loop.py) handle tool calls correctly?
 
-    uv run python -m unittest tests.test_lab1_loop -v
+    uv run python -m unittest tests.test_lab_b_loop -v
 """
 
 import json

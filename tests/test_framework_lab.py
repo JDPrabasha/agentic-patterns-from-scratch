@@ -1,7 +1,7 @@
 """Offline checks for framework_lab/parity.py: metering, judging and fidelity.
 
 The real API is replaced underneath the harness by a scripted Messages.create,
-so these run with no key and no cost. The baseline needs your Lab 1 loop.
+so these run with no key and no cost. The baseline needs your Lab B loop.
 """
 
 import importlib.util

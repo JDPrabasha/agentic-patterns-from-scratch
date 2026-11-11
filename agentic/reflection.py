@@ -133,7 +133,7 @@ def reflect(
         trace.block(f"Round {n} review: {'PASS' if passed else 'FAIL'}", "\n".join(f"- {i}" for i in issues))
 
         # ------------------------------------------------------------------
-        # LAB 2 — YOUR TEAM WRITES STEPS 2 AND 3.  Check: uv run python -m unittest tests.test_lab2_reflection -v
+        # LAB C — YOUR TEAM WRITES STEPS 2 AND 3.  Check: uv run python -m unittest tests.test_lab_c_reflection -v
         #
         # STEP 2: Decide whether to stop.
         #   - If the draft passed, return ReflectionResult(draft, rounds, True).
@@ -146,6 +146,6 @@ def reflect(
         #     draft = generate(llm, system=system, messages=messages)
         #   (generate() appends the model's reply to `messages` for you.)
         # ------------------------------------------------------------------
-        raise NotImplementedError("Lab 2: write STEPS 2-3 in agentic/reflection.py")
+        raise NotImplementedError("Lab C: write STEPS 2-3 in agentic/reflection.py")
 
     return ReflectionResult(draft, rounds, False)

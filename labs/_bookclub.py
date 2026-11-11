@@ -1,4 +1,4 @@
-"""The book-club task and three strategies for it, shared by labs/03_planning.py and labs/04_tournament.py.
+"""The book-club task and three strategies for it, shared by labs/d_planning.py and labs/d_tournament.py.
 
     react         one agent loop with every tool and the whole goal
     plan          plan -> validate -> execute step by step (replan on failure)
@@ -24,7 +24,7 @@ then email each member their own order id."""
 
 # =============================================================================
 # TOURNAMENT KNOBS. Your team changes ONE of these (or --model), then runs
-#   uv run labs/04_tournament.py --runs 2 --quiet --team <your-team>
+#   uv run labs/d_tournament.py --runs 2 --quiet --team <your-team>
 # Allowed: anything in this block. Not allowed: GOAL, shop/, the grader, agentic/planning.py.
 # =============================================================================
 

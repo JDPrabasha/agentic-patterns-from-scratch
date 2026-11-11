@@ -1,6 +1,6 @@
-"""Lab 2 checks: does your reflect (agentic/reflection.py) stop and revise correctly?
+"""Lab C checks: does your reflect (agentic/reflection.py) stop and revise correctly?
 
-    uv run python -m unittest tests.test_lab2_reflection -v
+    uv run python -m unittest tests.test_lab_c_reflection -v
 """
 
 import unittest

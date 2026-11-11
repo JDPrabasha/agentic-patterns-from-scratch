@@ -20,12 +20,12 @@ Use `uv` from the repository root.
 ```bash
 uv sync                                   # install
 uv run scripts/check_solutions.py         # offline: full suite against solutions/ (must pass)
-uv run python -m unittest                 # offline: 16 tests fail BY DESIGN until Labs 1-2 are written
-uv run labs/00_first_call.py --scenario basics [--team NAME] [--model ID]
-uv run labs/01_tool_use.py --scenario NAME
-uv run labs/02_reflection.py --scenario NAME
-uv run labs/03_planning.py --scenario plan-only|plan|react
-uv run labs/04_tournament.py [--runs N] [--quiet]
+uv run python -m unittest                 # offline: 16 tests fail BY DESIGN until Labs B and C are written
+uv run labs/a_first_call.py --scenario basics [--team NAME] [--model ID]
+uv run labs/b_tool_use.py --scenario NAME
+uv run labs/c_reflection.py --scenario NAME
+uv run labs/d_planning.py --scenario plan-only|plan|react
+uv run labs/d_tournament.py [--runs N] [--quiet]
 ```
 
 ## Starter vs solution
@@ -47,10 +47,10 @@ Labs make real, billed API calls. Run them only when asked. Before finishing a c
   act on. `grading.py` judges state only.
 - `labs/`: runnable scripts; `_common.py` sets `sys.path`, loads `.env`, adds `--team` and prints
   tab-separated scoreboard lines from each scenario's `(result, detail)` return; `_bookclub.py` holds
-  the task, the tournament knobs and the strategies shared by labs 03 and 04.
+  the task, the tournament knobs and the strategies shared by `d_planning.py` and `d_tournament.py` (Lab D).
 - `framework_lab/`: the follow-up lab (survey every framework, list trade-offs, justify a pick, say
   when to write the loop yourself). `parity.py` runs `my_agent.run()` (or a spike via `--agent`) and the from-scratch
-  baseline through the Lab 1 scenarios, meters API calls by wrapping the SDK's `Messages.create`,
+  baseline through the Lab B scenarios, meters API calls by wrapping the SDK's `Messages.create`,
   and compares the first request with the given system prompt and tools ("fidelity").
 - `README.md` is the participants' 90-minute lab sheet (teams of 3). Facilitator material lives
   outside the repo.

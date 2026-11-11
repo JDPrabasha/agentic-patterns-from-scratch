@@ -1,8 +1,8 @@
-"""Lab 1 — Tool use: the loop, and why descriptions and error messages matter.
+"""Lab B — Tool use: the loop, and why descriptions and error messages matter.
 
 First write STEPS 3-5 in agentic/loop.py, then:
 
-Run:  uv run labs/01_tool_use.py --scenario NAME
+Run:  uv run labs/b_tool_use.py --scenario NAME
 Read: agentic/tools.py, agentic/loop.py, shop/tools.py
 """
 
@@ -128,4 +128,4 @@ SCENARIOS = {
 }
 
 if __name__ == "__main__":
-    _common.run("lab1", "Lab 1: a hand-written tool-use loop.", SCENARIOS)
+    _common.run("labB", "Lab B: a hand-written tool-use loop.", SCENARIOS)

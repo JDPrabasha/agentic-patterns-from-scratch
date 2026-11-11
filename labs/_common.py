@@ -1,6 +1,6 @@
 """Shared plumbing for the lab scripts: paths, .env, argument parsing, setup checks.
 
-Nothing agentic lives here. Labs run as plain scripts (`uv run labs/01_tool_use.py`),
+Nothing agentic lives here. Labs run as plain scripts (`uv run labs/b_tool_use.py`),
 so we put the repository root on sys.path ourselves instead of packaging anything.
 """
 

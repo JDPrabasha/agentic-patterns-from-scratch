@@ -1,10 +1,10 @@
-"""Lab 3 (part 2) — Tournament: tools + planning + reflection, measured.
+"""Lab D (part 2) — Tournament: tools + planning + reflection, measured.
 
 Change ONE tournament knob in labs/_bookclub.py (or pass --model), then run
 plan-reflect on fresh shops and post your results to the scoreboard.
 
-Run:  uv run labs/04_tournament.py --runs 2 --quiet --team <your-team>
-      uv run labs/04_tournament.py --scenario react --runs 2 --quiet   # compare strategies
+Run:  uv run labs/d_tournament.py --runs 2 --quiet --team <your-team>
+      uv run labs/d_tournament.py --scenario react --runs 2 --quiet   # compare strategies
 Read: labs/_bookclub.py (plan_reflect and the knobs)
 """
 
@@ -24,7 +24,7 @@ def main():
 
     args = _common.parse_args("Tournament: run a strategy on fresh shops and grade it.", scenarios, extra)
     llm = _common.make_llm(args.model)
-    trace.start(f"lab3-tournament-{args.team}", _common.ROOT / "runs")
+    trace.start(f"labD-tournament-{args.team}", _common.ROOT / "runs")
     trace.note(f"Team: {args.team} · Model: {llm.model}")
     if args.quiet:
         trace.set_quiet(True)

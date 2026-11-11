@@ -1,13 +1,13 @@
-"""Lab 3 — Planning: plan first, review the plan, execute step by step.
+"""Lab D — Planning: plan first, review the plan, execute step by step.
 
 Task: set up next month's book-club read (see GOAL in labs/_bookclub.py). The
 catalogue has traps: one sci-fi book is fully stocked but over $20; another is
 cheap at retail but too expensive to restock within the budget.
 
-Run:  uv run labs/03_planning.py --scenario plan-only   # 1 model call: write labs/plan.json
+Run:  uv run labs/d_planning.py --scenario plan-only   # 1 model call: write labs/plan.json
       (swap plans with another team and review; you may edit labs/plan.json by hand)
-      uv run labs/03_planning.py --scenario plan        # execute labs/plan.json (or a new plan)
-      uv run labs/03_planning.py --scenario react       # stretch: no plan at all
+      uv run labs/d_planning.py --scenario plan        # execute labs/plan.json (or a new plan)
+      uv run labs/d_planning.py --scenario react       # stretch: no plan at all
 Read: agentic/planning.py, labs/_bookclub.py, shop/grading.py
 """
 
@@ -55,4 +55,4 @@ SCENARIOS = {
 }
 
 if __name__ == "__main__":
-    _common.run("lab3", "Lab 3: planning from scratch.", SCENARIOS)
+    _common.run("labD", "Lab D: planning from scratch.", SCENARIOS)

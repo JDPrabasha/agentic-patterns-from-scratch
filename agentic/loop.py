@@ -53,7 +53,7 @@ def run_agent(
                 trace.assistant(block.text.strip())
 
         # ------------------------------------------------------------------
-        # LAB 1 — YOUR TEAM WRITES STEPS 3 TO 5.  Check: uv run python -m unittest tests.test_lab1_loop -v
+        # LAB B — YOUR TEAM WRITES STEPS 3 TO 5.  Check: uv run python -m unittest tests.test_lab_b_loop -v
         #
         # STEP 3: If the model did NOT ask for a tool, it is done (or was cut off).
         #   Return AgentResult(text_of(response), messages, step, response.stop_reason or "unknown").
@@ -71,7 +71,7 @@ def run_agent(
         #     messages.append({"role": "user", "content": results})
         #   The loop then goes round and the model reads them.
         # ------------------------------------------------------------------
-        raise NotImplementedError("Lab 1: write STEPS 3-5 in agentic/loop.py")
+        raise NotImplementedError("Lab B: write STEPS 3-5 in agentic/loop.py")
 
     # STEP 6: a hard cap. Without it a confused agent loops (and bills) forever.
     trace.warn(f"Stopped after {max_steps} model calls without a final answer")

@@ -1,7 +1,7 @@
 """The shop's methods, exposed as tools.
 
 The descriptions below are the *only* thing the model knows about each tool.
-Lab 01 shows what happens when one of them lies.
+Lab B shows what happens when one of them lies.
 """
 
 from __future__ import annotations

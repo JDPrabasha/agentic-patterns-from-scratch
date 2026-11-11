@@ -1,7 +1,7 @@
 """Stuck? Swap in the reference implementation for one lab, keeping your attempt.
 
-    uv run scripts/use_solution.py loop          # Lab 1: agentic/loop.py
-    uv run scripts/use_solution.py reflection    # Lab 2: agentic/reflection.py
+    uv run scripts/use_solution.py loop          # Lab B: agentic/loop.py
+    uv run scripts/use_solution.py reflection    # Lab C: agentic/reflection.py
     uv run scripts/use_solution.py loop --undo   # put your own version back
 
 Your version is saved next to it as agentic/<name>.mine.py.
@@ -12,7 +12,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-NAMES = {"loop": "Lab 1", "reflection": "Lab 2"}
+NAMES = {"loop": "Lab B", "reflection": "Lab C"}
 
 
 def main() -> None:

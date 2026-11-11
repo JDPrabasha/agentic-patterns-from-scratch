@@ -1,11 +1,11 @@
-"""Lab 2 — Reflection: generate, critique, revise.
+"""Lab C — Reflection: generate, critique, revise.
 
 Task: reply to a customer whose book arrived damaged and who asks for more
 than the policy allows. Compare ways of producing the reply.
 
 First write STEPS 2-3 in agentic/reflection.py, then:
 
-Run:  uv run labs/02_reflection.py --scenario NAME
+Run:  uv run labs/c_reflection.py --scenario NAME
 Read: agentic/reflection.py
 """
 
@@ -153,4 +153,4 @@ SCENARIOS = {
 }
 
 if __name__ == "__main__":
-    _common.run("lab2", "Lab 2: reflection from scratch.", SCENARIOS)
+    _common.run("labC", "Lab C: reflection from scratch.", SCENARIOS)

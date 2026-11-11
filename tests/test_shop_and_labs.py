@@ -89,7 +89,7 @@ class LabTests(unittest.TestCase):
             self.assertIn("scenarios", out.stdout)
 
     def test_reflection_checks(self):
-        lab = load_lab("02_reflection.py")
+        lab = load_lab("c_reflection.py")
         good = ("Hi Maya, I'm so sorry your copy of order ORD-1037 arrived damaged. We'll refund the "
                 "$18.00 to your original payment method within 5 business days, and please keep the book. "
                 "We're unable to offer a gift card, but we hope you enjoy reading it.\n\nInkwell Books Support")
@@ -165,11 +165,11 @@ class LabTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, mock.patch("builtins.print") as printed:
             trace._state["file"] = Path(tmp) / "x.jsonl"
             try:
-                trace.scoreboard("Team Ada", "lab1", "bad-error", "gave up", 3, 1200, "ids tried: 1042")
+                trace.scoreboard("Team Ada", "labB", "bad-error", "gave up", 3, 1200, "ids tried: 1042")
             finally:
                 trace._state["file"] = None
             line = printed.call_args.args[0]
-            self.assertEqual(line.split("\t"), ["Team Ada", "lab1", "bad-error", "gave up", "3", "1200",
+            self.assertEqual(line.split("\t"), ["Team Ada", "labB", "bad-error", "gave up", "3", "1200",
                                                 "ids tried: 1042"])
             self.assertIn("Team Ada", (Path(tmp) / "scoreboard.tsv").read_text())
 

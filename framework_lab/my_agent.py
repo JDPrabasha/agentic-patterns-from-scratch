@@ -1,13 +1,13 @@
 """YOUR framework agent for the framework lab.
 
-Rebuild Lab 1 (a tool-using support agent) on the framework your team chose.
+Rebuild Lab B (a tool-using support agent) on the framework your team chose.
 The harness (framework_lab/parity.py) calls `run` once per scenario with fresh
 tools and a fresh shop, then judges the shop's state. Do not import from
 agentic/loop.py: the point is to let the framework do the looping.
 
 What you get in `tools`: a list of agentic.tools.Tool objects. Each has
     tool.name          str
-    tool.description   str   (pass it through unchanged: Lab 1 scenarios depend on it)
+    tool.description   str   (pass it through unchanged: Lab B scenarios depend on it)
     tool.input_schema  dict  (JSON Schema for the arguments)
     tool.fn            callable(**arguments) -> result; may raise agentic.tools.ToolError
 
