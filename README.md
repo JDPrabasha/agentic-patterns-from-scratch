@@ -1,5 +1,40 @@
 # Agentic Patterns from Scratch: the lab
 
+## At a glance
+
+Two 90-minute sessions, in teams of three, all in one fictional domain: **Inkwell Books**, a
+small bookshop with orders, stock, a supplier and customer email. You build the same kind of
+agent twice: first with nothing but the model API, then on a framework you picked after
+comparing several.
+
+| | Session 1: from scratch (this sheet) | Session 2: frameworks ([brief](framework_lab/README.md)) |
+|---|---|---|
+| **Question** | What is an agent, really, once you strip the libraries away? | What does a framework buy you, what does it cost, and when is it not worth it? |
+| **You build** | A support agent that looks up and cancels orders with tools; a reply writer that drafts, critiques and revises itself; a planner that runs a six-person book-club order end to end | Short spikes of the same support agent on each shortlisted framework (LangGraph, Pydantic AI, CrewAI, AutoGen, smolagents and others), then the full agent on the one you choose |
+| **You write by hand** | The agent loop (steps 3–5), the reflection stop and revise steps, tool error messages, a custom check, plan edits, one tournament setting | The adapter from our tools to each framework; your selection criteria and weights; a written decision |
+| **Judged by** | Python graders on the shop's real state (orders, spend, emails), never on what the agent claims | The same seven Lab 1 scenarios, run side by side against your own loop, plus your decision record |
+| **You leave with** | A ~60-line agent loop you understand line by line, and a wish list of things you wanted a library for | A trade-off matrix across frameworks, a defended pick, and concrete rules for when you'd write the loop yourself |
+
+**What you have at the end of both sessions:**
+
+1. A tool-using support agent built on your own loop (Lab 1).
+2. A self-correcting reply writer checked by both code and a model critic (Lab 2).
+3. A planning agent that places real (fake) orders within a budget and emails each customer (Lab 3).
+4. The Lab 1 agent rebuilt on the framework your team chose, measured against your own loop on
+   outcome, model calls, tokens, fidelity to your prompts, code size and dependencies.
+5. A short decision record: the trade-offs of each framework, why you picked yours, and when you
+   would skip every framework and write the loop yourself.
+
+| Session 1 schedule | Min | Session 2 schedule | Min |
+|---|---|---|---|
+| Lab 0 · Setup check | 5 | Criteria and predictions from the docs | 10 |
+| Lab 1 · Tool use | 28 | Survey: spike each framework, read its loop | 30 |
+| Lab 2 · Reflection | 20 | Pick, then build on your choice | 25 |
+| Lab 3 · Planning and tournament | 30 | Measure against your own loop | 5 |
+| Debrief | 7 | Challenge round with another team; write it up | 20 |
+
+## Session 1: from scratch
+
 You heard about tool use, reflection and planning in the lecture. In the next 90 minutes your
 team writes them yourselves, in plain Python on the Anthropic API, then competes with the other
 teams on a graded task.
@@ -43,15 +78,8 @@ One laptop per team needs this working. If two of you set it up, you have a spar
 
 ## How this lab works
 
-**Teams of 3.** Rotate roles at every lab, so everyone drives once:
-
-| Role | Job |
-|---|---|
-| **Driver** | Types and runs the commands. |
-| **Navigator** | Reads the trace aloud ("it's calling `cancel_order`…"), watches the clock. |
-| **Recorder** | Writes down the team's prediction *before* each run, pastes results into the class scoreboard, speaks in the debriefs. |
-
-**Every lab has the same rhythm:** build → predict → run → post → discuss.
+You work in teams of three. **Every lab has the same rhythm:** think it through on paper →
+build → predict → run → post → discuss.
 
 - **Core** steps are the path everyone finishes. **Stretch** steps are for teams that finish
   early; skip them without guilt.
@@ -75,8 +103,7 @@ One laptop per team needs this working. If two of you set it up, you have a spar
 
   Your attempt is kept as `agentic/loop.mine.py`. Compare the two afterwards; they are short.
 
-**Keep a "wish list".** Whenever you think "a library should do this for me", the Recorder notes
-it. You'll bring the list to the next lab, where you survey the agent frameworks, rebuild Lab 1 on
+**Keep a "wish list".** Whenever you think "a library should do this for me", write it down. You'll bring the list to the next lab, where you survey the agent frameworks, rebuild Lab 1 on
 the one you pick, and decide when you'd write the loop yourself instead.
 
 Every run also saves a trace to `runs/`. `uv run scripts/replay.py` plays the newest one back
@@ -94,7 +121,14 @@ This is one model call. You see the exact request dict you sent and the response
 Find `content`, `stop_reason` and `usage` in it. Post your `setup ok` line to the scoreboard:
 the facilitator watches for teams that haven't.
 
-## Lab 1 · Tool use (25 min)
+## Lab 1 · Tool use (28 min)
+
+### On paper first (core, 3 min)
+
+The customer asks "Where is my order ORD-1042?". The model replies with `stop_reason: "tool_use"`
+and a `tool_use` block that asks for `get_order`. Before you open the code, write down the
+`messages` list you will send on the *next* call: which roles, which block types, and which field
+ties the tool's result to the model's request. Keep the sketch; you'll check it against the trace.
 
 ### Build (core, 10 min)
 
@@ -113,7 +147,7 @@ When all six tests pass, your loop works. Read `agentic/tools.py` too: notice th
 
 ### Predict, then run (core, 10 min)
 
-For each scenario, the Recorder writes a prediction first, then the Driver runs:
+For each scenario, write a one-line prediction first, then run:
 
 ```bash
 uv run labs/01_tool_use.py --scenario <name>
@@ -126,7 +160,8 @@ uv run labs/01_tool_use.py --scenario <name>
 | `good-description` | honest `get_order` and `cancel_order` | Does the order survive now? |
 | `bad-error` | the customer says "1042"; the tool expects `ORD-1042` and replies "Order not found." | Will the agent recover? |
 
-Post each scenario's line to the scoreboard.
+Post each scenario's line to the scoreboard. For `bad-description`, find the exact turn in the
+trace where it went wrong, and compare the `tools` trace with your paper sketch.
 
 ### Challenge (stretch, 5 min)
 
@@ -162,7 +197,9 @@ id is present, at most 120 words, no placeholders, no gift card offered, no amou
 signed "Inkwell Books Support", plus `team_check`, which passes until you write it in the stretch
 step.
 
-**Predict:** how many of the checks will a single first draft pass?
+**Predict:** how many of the checks will a single first draft pass? After `one-shot` runs, score
+its draft against the six written checks yourselves before reading the script's score. Where do
+you and the code disagree?
 
 ```bash
 uv run labs/02_reflection.py --scenario one-shot
@@ -200,6 +237,9 @@ it did. Lab 3 uses your Lab 1 loop.
 
 ### Plan and peer review (core, 10 min)
 
+First, write your own plan for the goal: five or six numbered steps, in two minutes, without
+looking at the catalogue. Then let the model write one:
+
 ```bash
 uv run labs/03_planning.py --scenario plan-only
 ```
@@ -210,6 +250,7 @@ This makes one model call and writes the plan to `labs/plan.json`. Nothing is ex
 - The catalogue has traps. Will the plan notice that *Hyperion* is fully in stock but costs $22?
   That *Neuromancer* is $16, but restocking five copies costs $80?
 - Does it check the supplier cost before committing to a book?
+- What did the model's plan include that yours didn't, and the other way round?
 
 You may fix your own plan by editing `labs/plan.json` by hand: you are the human in the loop.
 Then execute it, step by step, each step in a fresh conversation:
@@ -250,7 +291,7 @@ average tokens. Write your change in the scoreboard's "Our change" column.
 > Planning and reflection cost extra model calls. Looking at the scoreboard, where did the extra
 > structure pay for itself, and where was it overhead?
 
-## Debrief (10 min)
+## Debrief (7 min)
 
 The facilitator walks the scoreboard. The winning team and the most surprising team each get two
 minutes. Last question for everyone:
@@ -260,14 +301,23 @@ minutes. Last question for everyone:
 
 ---
 
-## Next lab: survey the frameworks, pick one, and know when not to
+## Session 2: frameworks
 
-In the follow-up lab your team spikes every framework on a shortlist (LangGraph, Pydantic AI,
-CrewAI, AutoGen, smolagents and others) against the same harness, and lists the trade-offs of
-each. You then rebuild Lab 1 on the one you pick, run it through the same seven scenarios with
-`framework_lab/parity.py`, justify the choice against your own criteria, and say when you would
-skip every framework and write the loop yourself. Bring your wish list. The brief is in
-[`framework_lab/README.md`](framework_lab/README.md).
+Same support agent as Lab 1, built again on someone else's loop. Your team:
+
+1. **Writes criteria and weights** for choosing a framework, and predicts from each framework's
+   docs alone how it will handle your tools, errors and step limits.
+2. **Spikes every framework on the shortlist:** the smallest version of the Lab 1 agent that gets
+   one tool call through to Claude and back, measured by the same harness. You also find, in each
+   framework's source, the loop that does what your `run_agent` does.
+3. **Picks one**, names the runner-up, and builds the full agent on it: all seven Lab 1 scenarios,
+   side by side with your own loop.
+4. **Defends the pick** against a team that chose differently, and decides a set of design cases:
+   framework or hand-written loop?
+5. **Writes a short decision record:** trade-offs per framework, why this pick, what it cost, and
+   when you would write the loop yourself.
+
+Bring your wish list. The full brief is in [`framework_lab/README.md`](framework_lab/README.md).
 
 ## After the lab
 
