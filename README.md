@@ -13,7 +13,7 @@ comparing several.
 | **You build** | A support agent that looks up and cancels orders with tools; a reply writer that drafts, critiques and revises itself; a planner that runs a six-person book-club order end to end | Short spikes of the same support agent on each shortlisted framework (LangGraph, Pydantic AI, CrewAI, AutoGen, smolagents and others), then the full agent on the one you choose |
 | **You write by hand** | The agent loop (steps 3–5), the reflection stop and revise steps, tool error messages, a custom check, plan edits, one tournament setting | The adapter from our tools to each framework; your selection criteria and weights; a written decision |
 | **Judged by** | Python graders on the shop's real state (orders, spend, emails), never on what the agent claims | The same seven Lab 1 scenarios, run side by side against your own loop, plus your decision record |
-| **You leave with** | A ~60-line agent loop you understand line by line, and a wish list of things you wanted a library for | A trade-off matrix across frameworks, a defended pick, and concrete rules for when you'd write the loop yourself |
+| **You leave with** | A ~60-line agent loop you understand line by line | A trade-off matrix across frameworks, a defended pick, and concrete rules for when you'd write the loop yourself |
 
 **What you have at the end of both sessions:**
 
@@ -102,9 +102,6 @@ build → predict → run → post → discuss.
   ```
 
   Your attempt is kept as `agentic/loop.mine.py`. Compare the two afterwards; they are short.
-
-**Keep a "wish list".** Whenever you think "a library should do this for me", write it down. You'll bring the list to the next lab, where you survey the agent frameworks, rebuild Lab 1 on
-the one you pick, and decide when you'd write the loop yourself instead.
 
 Every run also saves a trace to `runs/`. `uv run scripts/replay.py` plays the newest one back
 without calling the model.
@@ -209,18 +206,11 @@ uv run labs/02_reflection.py --scenario grounded      # Python checks + a model 
 Compare the score and the number of model calls, and post both lines. If time allows, try
 `self-critique` (model critic only) and `checks-only` (Python checks only).
 
-### Write a check and swap (stretch, 5 min)
+### Write a check (stretch, 5 min)
 
-1. Fill in `team_check` in `labs/02_reflection.py` with a rule of your own, such as "never blames
-   the courier".
-2. Swap final drafts with a neighbouring team. Your newest one is in `runs/last-draft.txt`.
-   Paste theirs into `labs/draft.txt` and run:
-
-   ```bash
-   uv run labs/02_reflection.py --scenario check-draft
-   ```
-
-   This makes no model calls. Does your check catch something their critic missed?
+Fill in `team_check` in `labs/02_reflection.py` with a rule of your own, such as "never blames
+the courier". Run `--scenario grounded` again. Does the loop now revise for your rule, and how
+many extra model calls does it cost?
 
 ### Discuss
 
@@ -317,7 +307,7 @@ Same support agent as Lab 1, built again on someone else's loop. Your team:
 5. **Writes a short decision record:** trade-offs per framework, why this pick, what it cost, and
    when you would write the loop yourself.
 
-Bring your wish list. The full brief is in [`framework_lab/README.md`](framework_lab/README.md).
+The full brief is in [`framework_lab/README.md`](framework_lab/README.md).
 
 ## After the lab
 

@@ -98,7 +98,7 @@ What did it **give** us that our own loop (`agentic/loop.py`) does not? Be just 
 ## 8. When we would write the loop ourselves
 
 Decide each design case from the brief: a framework (which one) or your own loop, and the one fact
-that decides it. Tie the reason to something from the matrix, the build, or your wish list.
+that decides it. Tie the reason to something from the matrix, the build, or Session 1.
 
 | Case | Framework or own loop? | The deciding fact |
 |---|---|---|
